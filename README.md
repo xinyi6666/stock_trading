@@ -132,7 +132,7 @@ TRAIN AND TEST
 
 3) Go to baseline folder
 ```
-cd /$BASELINEs_DIR
+cd /$BASELINES_DIR
 ```
 
 ### Train and Test with DDPG ###
@@ -141,6 +141,7 @@ Since save/load function in baseline does not work for DDPG, you can only train 
 python -m baselines.run --alg=ddpg --network=mlp --env=StockTrade-v0 --num_timesteps=2e6  --actor_lr=1.0e-5 
 --critic_lr=1.0e-5 --gamma=1 --play
 ```
+It will prompt lines for entering the names of log files to store the episode reward and the replay portfolio values for each state.
 
 ### Train and Test with PPO ###
 Train and save the network by runing
@@ -153,4 +154,6 @@ Testing:
 python -m baselines.run --alg=ppo2 --network=mlp --env=StockTrade-v0 --num_timestep=0 --gamma=1 
 --load_path=YOUR_LOAD_PATH --play
 ```
+
+It will prompt lines for entering the names of log files to store the episode reward and the replay portfolio values for each state.
 
