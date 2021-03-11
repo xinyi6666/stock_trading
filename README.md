@@ -1,6 +1,8 @@
 # STOCK TRADING
 -------
 
+# DATA REPLICATION
+------
 INSTALL DEPENDENCIES:
 -------
 1) Install the following dependencies: 
@@ -114,10 +116,21 @@ cd /$BASELINEs_DIR
 ### Training and Testing with DDPG ###
 Since save/load function in baseline does not work for DDPG, you can only train and then play one episode
 ```
-python -m baseline.run --alg=ddpg --network=mlp --env=StockTrade-v0 --num_timesteps=2e6  --actor_lr=1.0e-5 
+python -m baselines.run --alg=ddpg --network=mlp --env=StockTrade-v0 --num_timesteps=2e6  --actor_lr=1.0e-5 
 --critic_lr=1.0e-5 --gamma=1 --play
 ```
 
+### Training and Testing with PPO ###
+Train and save the network by runing
+```
+python -m baselines.run --alg=ppo2 --network=mlp --env=StockTrade-v0 --num_timesteps=5e6 --gamma=1 
+--save_path=YOUR_SAVE_PATH
+```
+Testing:
+```
+python -m baselines.run --alg=ppo2 --network=mlp --env=StockTrade-v0 --num_timestep=0 --gamma=1 
+--load_path=YOUR_LOAD_PATH --play
+```
 GENERATING YOUR OWN DATA FROM ANY SOURCES (OPTIONAL)
 ----
 
