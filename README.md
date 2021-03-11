@@ -1,3 +1,8 @@
+# Components
+* 
+* [Data Repliation](#data-replication)
+
+
 # STOCK TRADING
 -------
 
