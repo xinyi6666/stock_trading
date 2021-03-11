@@ -39,4 +39,50 @@ BUILD STOCK TRADING ENVIRONMENT
   cd stock_trading
   ```
 
+2) Make stock trading environment
+
+- Make stock trading envs folder in Gym
+  
+  ```
+  mkdir $GYM_DIR/envs/stocktrade
+  cd $GYM_DIR/envs
+  ```
+
+- Copy `src/stock_trading_env.py`, `src/stock_trading_testenv.py`, `src/__init__.py` to `./stocktrade`
+
+- Copy the following lines to `__init__.py` in the `$GYM_DIR/envs` folder:
+
+```
+register(
+        id='StockTrade-v0',
+        entry_point='gym.envs.stocktrade:StockTradingEnv',
+        )
+
+register(
+        id='StockTradeTest-v0',
+        entry_point='gym.envs.stocktrade:StockTradingTestEnv',
+        )
+```
+
+PROCESS DATA
+----
+If you do have the raw minute-level data from 2018/09/04 to 2021/02/17, you can use `src/data_process.py` to generate the data use for training and testing. If you do not have the minute-level data, or only have day-level data, please see section **GENERATING YOUR OWN DATA FROM ANY SOURCES**.
+
+1) Locate the folder `historical_price` which contains the historical prices for companies
+```
+cd historical_price/
+ls *.csv > list.txt 
+```
+Now in `list.txt`, it contains all file names with `.csv` extension in the folder.
+
+2) Edit `path` and `list_path` at the beginning of the `src/data_process.py` 
+
+
+TRAINING AND TESTING
+----
+
+
+GENERATING YOUR OWN DATA FROM ANY SOURCES (OPTIONAL)
+----
+
 
