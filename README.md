@@ -1,10 +1,13 @@
 # Components
-* 
+*
+* [Results](#results)
 * [Data Repliation](#data-replication)
 
 
 # STOCK TRADING
 -------
+
+# RESULTS
 
 # DATA REPLICATION
 ------
