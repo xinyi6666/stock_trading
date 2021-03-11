@@ -106,6 +106,23 @@ mkdir $GYM_DIR/envs/stocktrade/Data
 cp clean_data.csv $GYM/envs/stocktrade/Data/
 ```
 
+GENERATING YOUR OWN DATA FROM ANY SOURCES (OPTIONAL)
+----
+1) If you don't have the correct raw data files, you need to modify the `data_process.py` file to write a `clean_data.csv` with a table in the following form:
+```
+            date   min      AAL      AAPL  ...      WFC       WMT      XOM      XRX
+0       20180905   870  40.2246   56.4054  ...  58.9983   95.6207  80.2367  27.6172
+1       20180905   871  40.0826   56.3734  ...  58.9704   95.6837  80.2245  27.6006
+2       20180905   872  40.0226   56.3939  ...  58.9896   95.7038  80.2527  27.5923
+3       20180905   873  39.9439   56.3964  ...  58.9831   95.7348  80.2153  27.5964
+4       20180905   874  39.8317   56.3738  ...  58.9917   95.7342  80.2137  27.5994
+          ...   ...      ...       ...  ...      ...       ...      ...      ...
+```
+
+2) Modify the `stop_min` in `stock_trading_env.py` and `start_min` in `stock_trading_testenv.py` according to your testing and training period.
+
+3) Continue to the section [TRAIN AND TEST](#train-and-test)
+
 
 TRAIN AND TEST
 ----
@@ -136,7 +153,4 @@ Testing:
 python -m baselines.run --alg=ppo2 --network=mlp --env=StockTrade-v0 --num_timestep=0 --gamma=1 
 --load_path=YOUR_LOAD_PATH --play
 ```
-GENERATING YOUR OWN DATA FROM ANY SOURCES (OPTIONAL)
-----
-
 
