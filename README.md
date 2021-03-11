@@ -65,7 +65,7 @@ register(
         entry_point='gym.envs.stocktrade:StockTradingTestEnv',
         )
 ```
-EDITING BASELINES RUN FILE
+EDIT BASELINES RUN FILE
 ----
 Now we need to modify the `run.py` in the baselines
 ```
@@ -102,7 +102,7 @@ cp clean_data.csv $GYM/envs/stocktrade/Data/
 ```
 
 
-TRAINING AND TESTING
+TRAIN AND TEST
 ----
 1) Edit `path` in `$GYM_DIR/envs/stocktrade/stock_trading_env.py` and `$GYM_DIR/envs/stocktrade/stock_trading_testenv.py` to your local paths
 
@@ -113,14 +113,14 @@ TRAINING AND TESTING
 cd /$BASELINEs_DIR
 ```
 
-### Training and Testing with DDPG ###
+### Train and Test with DDPG ###
 Since save/load function in baseline does not work for DDPG, you can only train and then play one episode
 ```
 python -m baselines.run --alg=ddpg --network=mlp --env=StockTrade-v0 --num_timesteps=2e6  --actor_lr=1.0e-5 
 --critic_lr=1.0e-5 --gamma=1 --play
 ```
 
-### Training and Testing with PPO ###
+### Train and Test with PPO ###
 Train and save the network by runing
 ```
 python -m baselines.run --alg=ppo2 --network=mlp --env=StockTrade-v0 --num_timesteps=5e6 --gamma=1 
