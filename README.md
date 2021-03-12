@@ -5,6 +5,12 @@ The purpose of this project is to understand this paper, replicate its method an
 # Overview
 * [Problem Description](#problem-description)
   * [Stock trading process as an MDP](#stock-trading-process-as-an-MDP)
+  * [Model refinements](#model-refinements)
+* [Methods]
+  * [Existing methods](#existing-methods)
+  * [Method proposed in the paper](#method-proposed-in-the-paper)
+  * [DDPG](#deep-deterministic-policy-gradient-(DDPG))
+  * [PPO](#Proximal-Policy-Optimization-(PPO))
 * [Code Explanation](#code-explaination)
 * [Results](#results)
 * [Data Replication](#data-replication)
