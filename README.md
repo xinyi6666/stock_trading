@@ -382,7 +382,8 @@ Recall that we have two MDP models for the stock trading process--the original m
 </p>
 We set the trading interval for training and testing to be 30 minutes. In other words, an agent takes one action every 30 minutes. The initial portfolio value is set at $10,000. After training the agents based on the two models, we run the policies on the testing data and plot the corresponding growth of total reward. In the figure, the x-axis shows the trading dates, and the y-axis is the portfolio value in dollars. The blue curve is the portfolio growth of the policy trained with the refined model, and the red curve corresponds to the policy obtained with the model proposed in the paper. Our refined model outperforms the original model. As shown in this figure, the blue curve is consistently higher than the red curve; by the end of the testing period, the policy derived from the refined model almost doubled the profit of the original model. 
 
-The next two figures capture the testing results of DDPG and PPO. Identical to the last set of experiments, we selected 30 minutes as the trading interval. In the figure below, the blue curve represents the portfolio change according to the policy found by DDPG, and the red curve is that of PPO. 
+
+The next figure captures the testing results of DDPG and PPO. Identical to the last set of experiments, we selected 30 minutes as the trading interval. In the figure below, the blue curve represents the portfolio change according to the policy found by DDPG, and the red curve is that of PPO. 
 <p align="center">
   <img width="480" src="/fig/results.png">
 </p>
