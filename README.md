@@ -116,7 +116,6 @@ For this project, we used the provided minute-level volume weighted average stoc
 
 
 # Code Explanation
--------
 In this section, we are going to explain how to implement a cumsom gym enviroment for the stock trading. This basically explains what are included in `stock_trading_env.py` and `stock_trading_testenvs.py`. We have two versions of stock trading environments which are corresponding to the model in the original paper and the refined model, respectively. 
 
 First before talking into details, the environement should contains all necessary functionaility to run an agents and allow it to learn. Each environment must implement in the following form:
@@ -428,8 +427,7 @@ Both policies attain similar portfolio values across all the trading dates. The 
 Lastly, we compare the DDPG and PPO results with SPY500 index and QQQ, whose components are the stocks of Nasdaq top 100 companies. More specifically, we evaluate these methods in terms of the return, the standard deviation of excess return, and Sharpe ratios. From the table above, we observe that both policies trained by the deep reinforcement learning algorithms beat the market index by over 10% in returns. Although their standard deviations are larger, their Sharpe ratios are comparable with the market index. Such results suggest that deep reinforcement learning approaches have great potentials in tackling the stock trading problem. 
 
 # How to Use This Repository
-------
-INSTALL DEPENDENCIES:
+## Install dependencies
 -------
 1) Install the following dependencies: 
 
@@ -458,7 +456,7 @@ python -m baselines.run --alg=deepq --env=PongNoFrameskip-v4 --num_timesteps=1e6
 ```
 If this works, then it is ready to incorportate stock trading environment.
 
-BUILD STOCK TRADING ENVIRONMENT
+## Build stock trading environment
 -----
 1) Clone the repository
 
@@ -491,7 +489,7 @@ register(
         entry_point='gym.envs.stocktrade:StockTradingTestEnv',
         )
 ```
-EDIT BASELINES RUN FILE
+## Edit baselines run file
 ----
 Now we need to modify the `run.py` in the baselines
 ```
@@ -501,7 +499,7 @@ cp src/run.py ./
 ```
 This will rename the original `run.py` to `run.bak` in the baseline folder and copy our customized `run.py` to baselines folder.
 
-PROCESS DATA
+## Process data
 ----
 If you do have the raw minute-level data from 2018/09/05 to 2021/02/17, you can use `src/data_process.py` to generate the data use for training and testing. If you do not have the minute-level data, or only have day-level data, please see section **GENERATING YOUR OWN DATA FROM ANY SOURCES**.
 
@@ -527,7 +525,7 @@ mkdir $GYM_DIR/envs/stocktrade/Data
 cp clean_data.csv $GYM/envs/stocktrade/Data/
 ```
 
-GENERATING YOUR OWN DATA FROM ANY SOURCES (OPTIONAL)
+## Generating your own data from any sources (optional) 
 ----
 1) If you don't have the correct raw data files, you need to modify the `data_process.py` file to write a `clean_data.csv` with a table in the following form:
 ```
@@ -545,7 +543,7 @@ GENERATING YOUR OWN DATA FROM ANY SOURCES (OPTIONAL)
 3) Continue to the section [TRAIN AND TEST](#train-and-test)
 
 
-TRAIN AND TEST
+## Training and testing 
 ----
 1) Edit `path` in `$GYM_DIR/envs/stocktrade/stock_trading_env.py` and `$GYM_DIR/envs/stocktrade/stock_trading_testenv.py` to your local paths
 
@@ -556,7 +554,7 @@ TRAIN AND TEST
 cd /$BASELINES_DIR
 ```
 
-### Train and Test with DDPG ###
+### Train and test with DDPG ###
 Since save/load method in baseline does not work for DDPG, you can only train and then play one episode
 ```
 python -m baselines.run --alg=ddpg --network=mlp --env=StockTrade-v0 --num_timesteps=2e6  --actor_lr=1.0e-5 
@@ -564,7 +562,7 @@ python -m baselines.run --alg=ddpg --network=mlp --env=StockTrade-v0 --num_times
 ```
 It will prompt lines for entering the names of log files to store the episode rewards and the replay portfolio values for each state.
 
-### Train and Test with PPO ###
+### Train and test with PPO ###
 Train and save the network by runing
 ```
 python -m baselines.run --alg=ppo2 --network=mlp --env=StockTrade-v0 --num_timesteps=5e6 --gamma=1 
