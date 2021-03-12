@@ -3,6 +3,7 @@ The stock market is an extremely complex dynamic system. A remarkable number of 
 The purpose of this project is to understand this paper, replicate its method and further explore the stock trading problem beyond the scope of this paper. We will first describe the problem of interest formulated as a Markov Decision Process model, followed by a discussion on model improvement. Then we will discuss the method proposed in this paper and contrast it against existing alternatives. We will highlight DDPG and its alternative called **Proximal Policy Optimization (PPO)** which we explored beyond this paper. Next, we will describe the data used for training and testing, and explain how such data is processed. We include implementation details and code execution instructions. We wrap up with the experiment results, the method evaluation and some concluding remarks. Below is an overview of the succeeding discussions.     
 
 # Overview
+* [Problem Description](#problem-description)
 * [Code Explanation](#code-explaination)
 * [Results](#results)
 * [Data Replication](#data-replication)
@@ -114,13 +115,7 @@ For this project, we used the provided minute-level volume weighted average stoc
 
 
 
-
-
-
-
-# Implementation Details
-
-# CODE EXPLAINATION
+# Code Explanation
 -------
 In this section, we are going to explain how to implement a cumsom gym enviroment for the stock trading. This basically explains what are included in `stock_trading_env.py` and `stock_trading_testenvs.py`. We have two versions of stock trading environments which are corresponding to the model in the original paper and the refined model, respectively. 
 
@@ -172,10 +167,14 @@ total_row, total_col = training_data.shape
 
 # This will read the reward log file name using stdin 
 log_file_name = input("Type Reward Log File Name:")
-
 n_company = total_col - 2  # remove first two columns
 initial_asset = 10000
-final_reward = []
+final_reward = [] # for record the final reward 
+trade_interval = 15
+
+# rows to start and end 
+start_row = 0
+end_row = 211806
 
 ```
 
@@ -186,8 +185,8 @@ Now we are going to create constructor
 class StockTradingEnv(gym.Env):
     metadata = {'render.modes': ['human']}
     
-    def __init__(self, trading_interval = 30):
-        self.row = 0
+    def __init__(self, trading_interval = trade_interval):
+        self.row = start_row
         
         # The interval for taking action is according to trading_interval
         self.trading_interval = trading_interval  
@@ -212,12 +211,223 @@ class StockTradingEnv(gym.Env):
         self.reward = 0
         self.total_reward_buffer = [0]
 
-        self.reset()
         self._seed()    
     
 ```
 
-# DATA REPLICATION
+### Reset the environment
+```
+    def reset(self):
+        self.row = start_row
+        self.total_asset = initial_asset
+        self.stock_price = training_data[self.row][2:]
+        self.state = [0 for _ in range(n_company)] + self.stock_price.tolist() + [initial_asset]
+        self.reward = 0
+        self.total_reward_buffer = [0]
+        return self.state
+```
+
+
+### Buy and sell the stocks
+Before defining the step method, we are going to define a private method called `_buy_sell_stock` for determing what is the next state. First we need to determine which indices in the input action is corresponding to buy/sell/hold. Meanwhile, we can perform the sell action and update the current cash balance and the number of stock held in the portfolio. 
+```
+    def _buy_sell_stock(self, action):
+    
+        # Finding which indices are corresponding to buy action, and which are corresponding to sell action
+        buy_idx = []
+        for i in range(n_company):
+            if action[i] < 0: # sell stock 
+                n_sell = min(abs(action[i]), self.state[i])
+                
+                # update current cash balance 
+                self.state[-1] += self.stock_price[i] * n_sell 
+                
+                # update number of stocks stocking 
+                self.state[i] -= n_sell
+                
+            if action[i] > 0:
+                buy_idx.append(i)
+```
+After that, we perform sell action. Since the the total amount of cash required for buying all the stocks may be greater than the total amount of cash the agent has. We need to adjust the action by using the following formula:
+
+<H2 align="center">  <img src="https://user-images.githubusercontent.com/47408833/110899074-11480480-82c6-11eb-8472-e1cd2bbf2c67.png" width="500"></H2>
+
+```
+        # Calculate the total money required for buying all the stock
+        total_money_required = sum(self.stock_price[buy_idx] * action[buy_idx])
+        adjusted_action = action
+        
+        # If the agent does not have enough cash, then we need to adjust the number of stock buying depending on
+        # how many cash it has
+        if total_money_required > self.state[-1]:
+            adjusted_action[buy_idx] = np.floor(action[buy_idx] * (self.state[-1] / total_money_required))
+```
+After calculation, we buy the corresponding stocks and update the number of stocks held and cash balance in the state.
+
+```
+        # Buy stocks
+        for i in buy_idx:
+            n_buy = adjusted_action[i]
+            
+            # Update the current cash balance
+            self.state[-1] -= self.stock_price[i] * n_buy  
+            
+             # update number of stocks stocking 
+            self.state[i] += n_buy
+```
+
+### Step method
+Now we are going to create the step method, which should return what is the reward for stepping to new state, next state, and if the agent is at the end of one episode. First, we determine if one episode is going to end:
+```
+    def step(self, actions):
+        
+        self.done = self.row+self.trading_interval >= stop_row
+```
+If the episode should be ending, then we record the final portfolio value to the log file 
+```
+        if self.done:
+            final_reward.append(self.total_reward_buffer[-1])
+            log = open("./"+log_file_name,'a')
+            log.write("%f\n"%self.total_reward_buffer[-1])
+            log.close()
+            
+            return self.state, 0, self.done, {}
+```
+Otherwise, we calculate the part of the state by calling `_buy_sell_stock`. After that, we are going to update the stock price part in the state by using the updated price data. In addition, we also calculate the total portfolio value, the reward and store them in the buffer.
+```
+        else:
+            self._buy_sell_stock(actions)
+            
+            # Update the row number 
+            self.row += self.trading_interval
+            
+            self.stock_price = training_data[self.row][2:]
+            
+            # Update current state 
+            self.state = list(self.state[0:n_company]) + self.stock_price.tolist() + [self.state[-1]]
+            
+            # Calculate the total portfolio value 
+            self.total_asset = self.state[-1] + sum(self.stock_price*self.state[0:n_company])
+            
+           total_reward = self.total_asset- self.beginning_asset
+            
+            # Current reward will be the change of portfolio value, it is the same as the change of reward
+            self.reward = total_reward - self.total_reward_buffer[-1]
+            
+            #  Record the reward change 
+            self.total_reward_buffer.append(total_reward)
+
+            return self.state, self.reward, self.done, {}
+```
+
+### Other methods
+ 
+```
+    def render(self, mode='human'):
+        return self.state
+
+    def _seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
+```
+
+## Refined Model
+
+Similar to the previous section, we need to import data and define variables. Since lots of codes are repeated, we do not repost the them here, and will only note the change in each section. For detailed code (without the changes in this section) for `__init__`, `reset`,`render` and `_seed` methods, please refer to section [Model in the Paper](#model-in-the-paper)
+
+### Constructor 
+Since we have changed the the action space to continuous from -1 to 1, here we change the defination of action space to 
+```
+self.action_space = spaces.Box(low=-1, high=1, shape=(n_company,), dtype=np.double)
+```
+
+Now for the state space, we replace the price of stock to 0 at declaration:
+
+```
+self.state = [0 for _ in range(n_company)] + [0 for _ in range(n_company)] + [initial_asset]
+```
+
+
+### Reset the environment
+Similarly to the previous section, in `reset` method, we need to change the part for reseeting `self.state` to 
+```
+self.state = [0 for _ in range(n_company)] + [0 for _ in range(n_company)] + [initial_asset]
+```
+
+### Buy and sell the stocks
+For the `_buy_sell_stock` method, there are lots of changes. By that, here we repost the detailed code and explain what is doing. Since the action returned is continuous, then we need to have a tolerance for determining if action value is numerically zero. After that, we are doing the similar process for finding out indices corresponding to buy and sell. For calculating the number of stocks selling, we determine that use action value times the current stock holding.
+```
+    def _buy_sell_stock(self, action):
+    
+        buy_idx = []
+        tol = 1.0e-4 # define tolerance for determing if a action is buy/sell/hold
+        for i in range(n_company):
+            if action[i] < -tol:  # sell stock
+                n_sell = min(abs(action[i])*self.state[i], self.state[i])
+                self.state[-1] += self.stock_price[i] * n_sell
+                self.state[i] -= n_sell
+                assert self.state[i] >= 0
+            if action[i] > 1.0e-4:
+                buy_idx.append(i)
+```
+After that, we perform sell action. We now use the formula
+<H3 align="center">  <img src="https://user-images.githubusercontent.com/47408833/110911669-9cca9100-82d8-11eb-986d-30dfb51f6112.png", width="400"> </H3>
+to adjust the action for buying the stock if we don't have enough cash. After calculation, we buy the corresponding stocks and update the number of stocks held and cash balance in the state.
+
+```
+         adjusted_action = action
+         if sum(action[buy_idx]) > (self.state[-1] / self.total_asset) and sum(action[buy_idx]) > tol:
+               adjusted_action[buy_idx] = action[buy_idx] / sum(action[buy_idx])
+               
+        # Buy stocks
+        for i in buy_idx:
+            if adjusted_action[i] > tol and self.state[-1] > self.stock_price[i]:
+                n_buy = (adjusted_action[i] * self.state[-1]) / self.stock_price[i]
+                self.state[-1] -= self.stock_price[i] * n_buy
+                self.state[i] += n_buy
+```
+
+### Step method
+For the step method, we only need to change how we calculate `self.state`. In order to do that, we need to calculate the change of the stock price in percentage. 
+```
+        change_ratio = (self.stock_price - stock_price_old) / stock_price_old * 100
+        self.state = list(self.state[0:n_company]) + change_ratio.tolist() + [self.state[-1]]
+```
+
+
+For completing the code, we also need to include `render` and `_seed` described in section [Other methods](#other-methods)
+
+## Test Environment
+The overall implementation for the test environment is basically the same. Only things we have to change is `start_row`, `end_row` at the variable declaration, and the name for the class to `StockTradingTestEnv`.
+
+
+
+
+# Results and Evaluation
+Recall that we have two MDP models for the stock trading process--the original model introduced in the paper, and the refined model with adjustments in the states and actions that we proposed. Now we present the results obtained using both the original model and the refined model in the figure below. 
+
+<p align="center">
+  <img width="480" src="/fig/old_vs_new_model.png">
+</p>
+
+We set the trading interval for training and testing to be 30 minutes. In other words, an agent takes one action every 30 minutes. The initial portfolio value is set at $10,000. After training the agents based on the two models, we run the policies on the testing data and plot the corresponding growth of total reward. In the figure, the x-axis shows the trading dates, and the y-axis is the portfolio value in dollars. The blue curve is the portfolio growth of the policy trained with the refined model, and the red curve corresponds to the policy obtained with the model proposed in the paper. Our refined model outperforms the original model. As shown in this figure, the blue curve is consistently higher than the red curve; by the end of the testing period, the policy derived from the refined model almost doubled the profit of the original model. 
+
+
+The next figure captures the testing results of DDPG and PPO. Identical to the last set of experiments, we selected 30 minutes as the trading interval. In the figure below, the blue curve represents the portfolio change according to the policy found by DDPG, and the red curve is that of PPO. 
+
+<p align="center">
+  <img width="480" src="/fig/results.png">
+</p>
+
+Both policies attain similar portfolio values across all the trading dates. The two curves almost overlap over the first half of the trading dates. Toward the end of testing, the two portfolio values differ by only a few hundreds of dollars. 
+
+<p align="center">
+  <img width="300" src="/fig/table.png">
+</p>
+
+Lastly, we compare the DDPG and PPO results with SPY500 index and QQQ, whose components are the stocks of Nasdaq top 100 companies. More specifically, we evaluate these methods in terms of the return, the standard deviation of excess return, and Sharpe ratios. From the table above, we observe that both policies trained by the deep reinforcement learning algorithms beat the market index by over 10% in returns. Although their standard deviations are larger, their Sharpe ratios are comparable with the market index. Such results suggest that deep reinforcement learning approaches have great potentials in tackling the stock trading problem. 
+
+# How to Use This Repository
 ------
 INSTALL DEPENDENCIES:
 -------
@@ -347,7 +557,7 @@ cd /$BASELINES_DIR
 ```
 
 ### Train and Test with DDPG ###
-Since save/load function in baseline does not work for DDPG, you can only train and then play one episode
+Since save/load method in baseline does not work for DDPG, you can only train and then play one episode
 ```
 python -m baselines.run --alg=ddpg --network=mlp --env=StockTrade-v0 --num_timesteps=2e6  --actor_lr=1.0e-5 
 --critic_lr=1.0e-5 --gamma=1 --play
@@ -367,35 +577,6 @@ python -m baselines.run --alg=ppo2 --network=mlp --env=StockTrade-v0 --num_times
 ```
 
 It will prompt lines for entering the names of log files to store the episode rewards and the replay portfolio values for each state.
-
-
-
-
-
-
-# Results and Evaluation
-Recall that we have two MDP models for the stock trading process--the original model introduced in the paper, and the refined model with adjustments in the states and actions that we proposed. Now we present the results obtained using both the original model and the refined model in the figure below. 
-
-<p align="center">
-  <img width="480" src="/fig/old_vs_new_model.png">
-</p>
-
-We set the trading interval for training and testing to be 30 minutes. In other words, an agent takes one action every 30 minutes. The initial portfolio value is set at $10,000. After training the agents based on the two models, we run the policies on the testing data and plot the corresponding growth of total reward. In the figure, the x-axis shows the trading dates, and the y-axis is the portfolio value in dollars. The blue curve is the portfolio growth of the policy trained with the refined model, and the red curve corresponds to the policy obtained with the model proposed in the paper. Our refined model outperforms the original model. As shown in this figure, the blue curve is consistently higher than the red curve; by the end of the testing period, the policy derived from the refined model almost doubled the profit of the original model. 
-
-
-The next figure captures the testing results of DDPG and PPO. Identical to the last set of experiments, we selected 30 minutes as the trading interval. In the figure below, the blue curve represents the portfolio change according to the policy found by DDPG, and the red curve is that of PPO. 
-
-<p align="center">
-  <img width="480" src="/fig/results.png">
-</p>
-
-Both policies attain similar portfolio values across all the trading dates. The two curves almost overlap over the first half of the trading dates. Toward the end of testing, the two portfolio values differ by only a few hundreds of dollars. 
-
-<p align="center">
-  <img width="300" src="/fig/table.png">
-</p>
-
-Lastly, we compare the DDPG and PPO results with SPY500 index and QQQ, whose components are the stocks of Nasdaq top 100 companies. More specifically, we evaluate these methods in terms of the return, the standard deviation of excess return, and Sharpe ratios. From the table above, we observe that both policies trained by the deep reinforcement learning algorithms beat the market index by over 10% in returns. Although their standard deviations are larger, their Sharpe ratios are comparable with the market index. Such results suggest that deep reinforcement learning approaches have great potentials in tackling the stock trading problem. 
 
 
 # Conclusion
