@@ -1,63 +1,122 @@
-The stock market is an extremely complex dynamic system. A remarkable number of works in literature has been devoted to understanding the stock market and developing effective trading strategies. In the paper titled *Practical Deep Reinforcement Learning Approach for Stock Trading* by Xiong et al., the authors examine the stock trading problem and proposes a deep reinforcement learning approach to tackle this challenging problem. In particular, the authors apply **Deep Deterministic Policy Gradient (DDPG)** to optimize for an effective stock trading strategy. 
+The stock market is an extremely complex dynamic system. A remarkable number of works in the literature has been devoted to understanding the stock market and developing effective trading strategies. In the paper titled *Practical Deep Reinforcement Learning Approach for Stock Trading* by Xiong et al., the authors examine the stock trading problem and proposes a deep reinforcement learning approach to tackle this challenging problem. In particular, the authors apply **Deep Deterministic Policy Gradient (DDPG)** to optimize for an effective stock trading strategy. 
 
-The purpose of this project is to understand this paper, replicate its method and further explore the stock trading problem beyond the scope of this paper. We will first describe the problem of interest. Then we will discuss the method proposed in this paper and contrast it with existing alternatives. Next, we will describe the data used for training and testing, and explain how such data is processed. We include implementation details, followed by a discussion on model improvement and an alternative method to DDPG, called **Proximal Policy Optimization (PPO)**. We wrap up with experiment results and an evaluation.     
+The purpose of this project is to understand this paper, replicate its method and further explore the stock trading problem beyond the scope of this paper. We will first describe the problem of interest. Then we will discuss the method proposed in this paper and contrast it with existing alternatives. Next, we will describe the data used for training and testing, and explain how such data is processed. We include implementation details, followed by a discussion on model improvement and an alternative method to DDPG, called **Proximal Policy Optimization (PPO)**. We wrap up with experiment results and an evaluation. Below is an overview of the following discussions.     
 
 # Overview
 * [Code Explanation](#code-explaination)
 * [Results](#results)
-* [Data Repliation](#data-replication)
+* [Data Replication](#data-replication)
 
 
 # Problem Description
-In the aforementioned paper, the authors aim to develop a stock trading strategy with high profit. Suppose there is a pool of *D* stocks that we are interested in investing. A trading strategy consists of buying, selling and holding decisions for each of the *D* stocks at every time step, in response to the dynamic of stock market. The authors model the stock trading process using a **Markov Decision Process (MDP)**. We now set forth some notation and describe this model.
+In the aforementioned paper, the authors aim to develop a stock trading strategy with high profit. Suppose there is a pool of *D* stocks that we are interested in investing. A trading strategy consists of buying, selling and holding decisions for each of the *D* stocks at every time step, in response to the dynamic of stock market. The authors model the stock trading process using a **Markov Decision Process (MDP)**. We now set forth some notation and describe the MDP model.
 
 ## Stock trading process as an MDP
-TODO: insert diagram
+An MDP is a discrete-time stochastic process. In this problem context, the MDP  can be described using the following components.  
 
-**Agent**: investors
+**Agent**: investors.
 
-**Environment**: stock market
+**Environment**: stock market.
 
-**State** (*s*): Each state s contains two vectors p and h, and a constant b. The vector p contains the prices of the D stocks. Vector h keeps track of how many of each stock we are holding. And the real number b is the balance we have available for buying more shares.
+**State** (*s*): At each time step, *s* contains three pieces of information (1) a vector *p* with the prices of the *D* stocks; (2) a vector *h* representing how many shares of each of the *D* stocks that the agent owns; (3) a constant *b* that keeps track of the amount of money available for future investments. 
 
-**Action** (*a*): Each action a encodes a set of actions on all the stocks. For each of the D stocks, we can sell some number of shares, buy some number of shares, or hold, which means do nothing about this stock.
+**Action** (*a*): For each of the *D* stocks, the agent can sell *k* shares, buy *k* shares, or hold, where *k* is a positive integer. Hold means that no shares  of a given stock is bought or sold. We note that this action space is discrete. 
 
-**Reward** (*r*): is the change in the portfolio value given the last state s and action a, the portfolio value is price of the stocks we have, denoted by p, times the numbers of holding shares h plus the current balance b. 
+**Reward** (*r*): At each time step, the reward is the change in the portfolio value given the last state *s*, the current state *s'* and action *a*. The portfolio value is the summation of *b* and stock prices (*p*) multiplied by the corresponding numbers of shares (*h*) held by the agent. 
 
-Now the stock trading problem becomes a maximization problem of the expected total reward, which can be captured by the action-value function.
+Now the best stock trading strategy is a sequence of actions dependent on the states that maximizes the total expected reward. 
 
 ## Model refinements
+For our project, we made a few adjustments to the MDP model given in the paper (described above). More specifically, we re-defined the states and actions, so that the model works better with a deep reinforcement learning approach. 
+
+**State**: At each time step, the state still contains three pieces of information. The change is made to the first piece. We replace the vector of all *D* stock prices (*p*), by a vector of price increment rates. Such rate for each stock at every time step is computed by (*current price - previous price*)/*previous price*.
+<p align="center">
+<img width="360" src="https://user-images.githubusercontent.com/17188583/110899203-4f452880-82c6-11eb-9d61-85001a14d33d.png">
+</p> 
+
+The benefits of this modification include: 
+* The agent receives valuable information about the short-term trends of stock price changes.
+* We will likely not observe the same stock price multiple times after a long period of time. Therefore, in a deep reinforcement learning approach, this adjustment avoids the agent from encountering too many states that were not explored in the training phase. (We will explain the deep reinforcement learning approach later in the methods section.)
+
+**Action**:We still have three actions-buy, sell and hold. However, we now make the action space continuous. The number of shares that we buy or sell now depends on a number *a* in the continuous interval *[-1,1]*.
+<p align="center">
+  <img width="480" src="https://user-images.githubusercontent.com/17188583/110899232-5a985400-82c6-11eb-919a-08cb396419dd.png">
+</p>
+
+The benefits of this modification include:
+* The agent can now buy or sell fractional shares, which is a trading option explored in many other works. 
+* The paper applies the DDPG algorithm to maximize the action-value function, which we will explain in the methods section. One crucial advantage of DDPG is that it can handle continuous action spaces. 
+
+Next we discuss existing methods for the stock trading problem, and provide an overview of the method proposed in the paper. 
+
 
 
 # Methods
+In this section, we first describe and evaluate two earlier methods for the stock trading problem. Then we discuss the method proposed in the paper and highlight the key algorithm--DDPG. After that, we give an overview of PPO, which is an alternative algorithm to DDPG that we explored beyond the assigned paper.
+
 ## Existing methods
-Many other researchers have studied problems along the line of asset allocation. For example, the modern portfolio theory by Markowitz  goes back to the 50s. This is a traditional approach to the portfolio management problem, in which we are given a collection of investment options, like different stocks. We are interested in figuring out a way to assign weights to the available options, such that the expected return is maximized subject to a certain risk level. The optimization model in this approach utilizes the mean and covariance information of the past performance of the stocks. 
+Many other researchers have studied the stock trading problem. For example, the Modern Portfolio Theory and Markowitz Model were proposed in the 50s. This is a traditional approach to the portfolio management problem. In this problem, we are given a collection of investment options, such as different stocks. The goal is to assign proper weights to the available investment options, such that the expected total return is maximized, subject to some risk constraint. This approach utilizes the mean and covariance information of the past performance of the stocks, which leads to a disadvantage--a large amount of information is needed, including the joint probability distribution and a covariance matrix. They become intractable very quickly as the problem scale increases. People have also observed stability issues. When there is a small change in the input, the optimal portfolio returned by this method can change drastically. 
 
-This approach has a few disadvantages: An observation is that a large amount of information is needed in this method, including the joint probability distribution among all the stocks, and a massive covariance matrix, things become intractable very quickly when the problem scale increases. Also people observed that it has stability issues. Basically when there’s a small change to the input, the optimal portfolio can change drastically. 
+Another approach is to use MDP to model the stock trading process, and then maximize the expected total reward using dynamic programming. Value iteration and policy iteration require the transition model to be known. This becomes a drawback when we do not know how to make specifications for the MDP. Also, this requirement restricts the tractable sizes of the state and action spaces. Therefore, this approach is also limited for large-scale problems. 
 
-Another approach is to use Markov decision process to model the stock trading process, and then maximize the expected return using dynamic programming. From the solution we can then obtain an optimal policy. For value iteration and policy iteration, etc. the exact structure of the MDP, like the transition probabilities, are needed. This becomes a drawback when we don’t know how to make specifications to the Markov decision process. Also, this requirement restricts the tractable sizes of the state and action spaces, so this approach is not the best for large-scale problems. Sometimes we might not know the rewards either. So we need a better method especially for complex systems like the stock market.
+The drawbacks of these two methods can be overcome with a deep reinforcement learning approach. 
 
 ## Method proposed in the paper
-Now we give an overview of the method that the authors came up with for the stock trading problem. In particular, we describe the deep deterministic policy gradient algorithm that this whole study relies on. 
+We now go over the method adopted by the authors for the stock trading problem. In particular, we highlight the DDPG algorithm that the paper relies on. 
 
-The high-level idea of the method in this paper is  to model the stock trading process with an MDP, which we have described in the first slide, and then to optimize the total expected reward by maximizing an action-value function. This optimization problem is quite challenging because the action value function is unknown to the decision maker. It has to be learned with feedbacks from the environment regarding different actions. This makes deep reinforcement learning a desirable approach. More specifically, this optimization problem is solved by an algorithm called deep deterministic policy gradient algorithm (DDPG).
+The high-level idea of the method in this paper is to model the stock trading process with an MDP (described in an earlier section), and then to optimize the expected total reward by maximizing an action-value function. The underlying challenge is that the action-value function is unknown to the agent, so it has to be learned from the feedbacks given by  the environment regarding different actions. This makes deep reinforcement learning a desirable approach. In the paper, this optimization problem is solved by DDPG.
 
-## Details of DDPG
-Next we focus on this DDPG algorithm. DDPG is modified from the deterministic policy gradient algorithm, and the authors adapted DDPG specifically to the MDP model for stock trading. 
+## Deep Deterministic Policy Gradient (DDPG)
+Next we focus on the DDPG algorithm. DDPG is a variant of the deterministic policy gradient algorithm. The authors adapted DDPG specifically to the MDP model for stock trading. We know that the crux of the policy gradient framework is to construct a good estimator for the gradient, which usually comprises of a value (Q) term and an actor (gradient of log policy evaluation) term. DDPG approximates these two terms with two deep neural networks. called the actor network and the critic network. 
 
-The overall structure of DDPG is consistent with the policy gradient  framework that we’ve seen in the lectures. We also learned from the lectures that the crux of the policy gradient framework is to construct a good estimator for the gradient of the expectation function in the objective, usually denoted by capital J. In the general form of an estimator for its gradient, there is a Q term capturing THE VALUE resulted from some actions given states. And this is followed by  the gradient of log pi, which encodes information about decisions made on the actor’s end. These two portions can be approximated by deep neural networks, which is the actor-critic component in the PG framework. This figure is provided in the paper. This upper left network is the actor network. This mu maps the states to the actions, and it learns about how the agent selects actions. Here theta_mu is the set of network parameters of mu. N is a random process. Noises are sampled from N and added to the output of mu to broaden the scope of explorable actions. The network on the right is the critic network. This Q learns about the policy value of an action under a state, which in some way critiques the current policy that the agent adopts. Theta Q is the set of parameters in the critic network.
+<p align="center">
+  <img width="480" src="/fig/actor_critic.png">
+</p>
+
+This actor network takes in the current state and outputs an action. We note that the action space can be continuous. The critic network takes this action and the current state as input, and estimates the value (Q). This estimated value then critiques the actor’s decision. 
+<p align="center">
+  <img width="640" src="/fig/DDPG_algorithm.png">
+</p>
+The figure above is the algorithm description provided in the paper. We created the animation below to help visualize the process. The flowchart shows the essential components in this algorithm, namely the actor and critic networks, the target actor and target critic networks, and a replay buffer. We next go over the DDPG algorithm; the green highlights in the animation correpond to the components involved in each step. 
+
+<p align="center">
+  <img width="640" src="/fig/DDPG_overview.gif">
+</p>
+
+1. We first initialize the actor and critic networks, the target networks and a replay buffer. 
+2. For every episode, we take the initial state and instantiate a random process *N* to generate noise for actions from the actor network. The noise allows us to explore more actions. We then loop over the time steps *t* and do the following.
+3. For the state at *t*, we obtain a noise-modified action from the actor network. Next we execute this action to get a reward and a new state. We add this chunk of new history to the replay buffer, from which we sample a mini batch.
+4. With this mini batch and outputs from the target networks, we optimize for a new critic network parameter and update the critic network. 
+5. Again using this mini batch, we use the actor and critic networks to get the sampled policy gradient, and update the actor policy. 
+6. Lastly we update the target networks and continue with the loop.  
+
+The replay buffer and the target networks are two technical tricks. Replay buffer reduces the temporal correlation of the simulated trajectories, whereby lowering the variance of estimations. The target networks regularize the learning algorithms of the actor network and the critic network. It has been observed that if we directly use the gradient from mini batch samples, these learning algorithms could diverge.
 
 
+## Proximal Policy Optimization (PPO)
+We explored another method that works well with continuous action space, called PPO. It also falls under the policy gradient framework for reinforcement learning. This method has similar benefits as the trust region policy optimization, but its implementation is easier. The key feature of PPO is its surrogate objective function:  
+<p align="center">
+  <img width="480" src="https://user-images.githubusercontent.com/17188583/110910543-1feae780-82d7-11eb-8958-4398cf97f2bd.png">
+</p>
+We next provide some intuition behind this objective. First of all, this objective contains an advantage term *A*. 
 
-## Further exploration: PPO
+TODO!!!
+Which is essentially the action value of some action minus the expected reward to go under a given state. This value tells us if the outcome of an action is better or worse than average, so that we can increase or decrease the weight for this action. 
+This PG objective also has a clipping component. 
+The reason for this is that, when we run gradient descent over limited batches of past experiences, the network parameters can go farther and farther away from the desired range and the policy is ruined. This clipping part restricts how far the parameter updates can go to resolve this problem. 
 
 
 # Data Acquisition and Processing
 ## Data used in the paper
-The authors choose to use the Dow jones 30 stocks as the stocks of consideration. These stocks comprise 30 large companies, which are used to evaluate the Dow Jones Industrial Average. This is a commonly used index that reflects the overall performance of the US stock market. The authors had access to the daily prices of these chosen stocks from January the first in 2009 all the way up to September the 30th in 2018. The daily data from January the first in 2009 to the first day of 2016 is used for training and validation. Data after that up to September the 30th in 2018 was used for testing the trained agent’s performance. Yahoo finance is a wonderful source for alternative datasets. 
+The authors choose the Dow Jones 30 stocks as the stocks of consideration. These stocks comprise 30 large companies, which are used to evaluate the Dow Jones Industrial Average. This is a commonly used index that reflects the overall performance of the US stock market. The authors had access to the daily prices of these chosen stocks from January 1, 2009 to September 30, 2018. The daily data from January 1, 2009 to January 1, 2016 is used for training and validation. Data after that up to September 30, 2018 was used for testing the performance of the trained agent. 
 
 ## Data used in this project
-For this project, we used the provided minute-level volume weighted average prices. TODO:SPECIFY TRAINING AND TESTING SETUP This set of data happens to have many missing entries and NAN entries.  One company is omitted for too many missing dates. For consistency, we omit data during after-hours and stock market holidays. We noticed that some data is still missing, so we filled in with the nearest previous data.
+For this project, we used the provided minute-level volume weighted average stock prices. This set of data happens to have many missing entries and NAN entries. The stock of one company is omitted for too many missing dates, so we considered 85 stocks in total. In addition, we only utilize data during trading hours on trading days (days that are not stock market holidays) for consistency. To deal with the data entries that are still missing, we fill them in with the nearest previous price data. The minute-level prices from September 5, 2018 to November 1, 2020 were used to train the agent. The data after November 1, 2020 up to February 17, 2021 was used for testing. More details of data processing is included in the implementation section.
+
+
+
+
+
 
 
 # Implementation Details
@@ -158,11 +217,6 @@ class StockTradingEnv(gym.Env):
         self._seed()    
     
 ```
-
-# Stock Trading as an MDP
--------
-
-# RESULTS
 
 # DATA REPLICATION
 ------
@@ -316,7 +370,23 @@ python -m baselines.run --alg=ppo2 --network=mlp --env=StockTrade-v0 --num_times
 It will prompt lines for entering the names of log files to store the episode rewards and the replay portfolio values for each state.
 
 
+
+
+
+
 # Results and Evaluation
+<p align="center">
+  <img width="480" src="/fig/old_vs_new_model.png">
+</p>
+<p align="center">
+  <img width="480" src="/fig/results.png">
+</p>
+<p align="center">
+  <img width="300" src="/fig/table.png">
+</p>
+
+# Conclusion
+
 
 # References
 * Xiong, Z., Liu, X. Y., Zhong, S., Yang, H., & Walid, A. (2018). Practical deep reinforcement learning approach for stock trading. *arXiv preprint arXiv:1811.07522*.
