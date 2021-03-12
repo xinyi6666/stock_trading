@@ -574,7 +574,7 @@ cp clean_data.csv $GYM/envs/stocktrade/Data/
 
 2) Modify the `stop_row` in `stock_trading_env.py` and `start_row` in `stock_trading_testenv.py` according to your testing and training period.
 
-3) Continue to the section [TRAIN AND TEST](#train-and-test)
+3) Continue to the section [Training and Testing](#training-and-testing).
 
 
 ## Training and testing 
