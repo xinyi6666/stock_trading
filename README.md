@@ -52,6 +52,8 @@ Next we discuss existing methods for the stock trading problem, and provide an o
 
 
 # Methods
+In this section, we first describe and evaluate two earlier methods for the stock trading problem. Then we discuss the method proposed in the paper and highlight the key algorithm-DDPG. After that, we give an overview of an alternative algorithm to DDPG called PPO that we explored beyond the assigned paper.
+
 ## Existing methods
 Many other researchers have studied the stock trading problem. For example, the Modern Portfolio Theory and Markowitz Model were proposed in the 50s. This is a traditional approach to the portfolio management problem, in which we are given a collection of investment options, like different stocks. We are interested in figuring out a way to assign weights to the available options, such that the expected return is maximized subject to a certain risk level. The optimization model in this approach utilizes the mean and covariance information of the past performance of the stocks. 
 
@@ -64,14 +66,13 @@ Now we give an overview of the method that the authors came up with for the stoc
 
 The high-level idea of the method in this paper is  to model the stock trading process with an MDP, which we have described in the first slide, and then to optimize the total expected reward by maximizing an action-value function. This optimization problem is quite challenging because the action value function is unknown to the decision maker. It has to be learned with feedbacks from the environment regarding different actions. This makes deep reinforcement learning a desirable approach. More specifically, this optimization problem is solved by an algorithm called deep deterministic policy gradient algorithm (DDPG).
 
-## Details of DDPG
+## Deep Deterministic Policy Gradient (DDPG)
 Next we focus on this DDPG algorithm. DDPG is modified from the deterministic policy gradient algorithm, and the authors adapted DDPG specifically to the MDP model for stock trading. 
 
 The overall structure of DDPG is consistent with the policy gradient  framework that we’ve seen in the lectures. We also learned from the lectures that the crux of the policy gradient framework is to construct a good estimator for the gradient of the expectation function in the objective, usually denoted by capital J. In the general form of an estimator for its gradient, there is a Q term capturing THE VALUE resulted from some actions given states. And this is followed by  the gradient of log pi, which encodes information about decisions made on the actor’s end. These two portions can be approximated by deep neural networks, which is the actor-critic component in the PG framework. This figure is provided in the paper. This upper left network is the actor network. This mu maps the states to the actions, and it learns about how the agent selects actions. Here theta_mu is the set of network parameters of mu. N is a random process. Noises are sampled from N and added to the output of mu to broaden the scope of explorable actions. The network on the right is the critic network. This Q learns about the policy value of an action under a state, which in some way critiques the current policy that the agent adopts. Theta Q is the set of parameters in the critic network.
 
 
-
-## Further exploration: PPO
+## Proximal Policy Optimization (PPO)
 
 
 # Data Acquisition and Processing
@@ -80,6 +81,12 @@ The authors choose to use the Dow jones 30 stocks as the stocks of consideration
 
 ## Data used in this project
 For this project, we used the provided minute-level volume weighted average prices. TODO:SPECIFY TRAINING AND TESTING SETUP This set of data happens to have many missing entries and NAN entries.  One company is omitted for too many missing dates. For consistency, we omit data during after-hours and stock market holidays. We noticed that some data is still missing, so we filled in with the nearest previous data.
+
+
+
+
+
+
 
 
 # Implementation Details
