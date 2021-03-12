@@ -1,10 +1,15 @@
-# Components
+The stock market is an extremely complex dynamic system. A remarkable number of works in literature has been devoted to understanding the stock market and developing effective trading strategies. In the paper titled *Practical Deep Reinforcement Learning Approach for Stock Trading* by Xiong et al., the authors examine the stock trading problem and proposes a deep reinforcement learning approach to tackle this challenging problem. In particular, the authors apply **Deep Deterministic Policy Gradient (DDPG)** to optimize for an effective stock trading strategy. 
+
+The purpose of this project is to understand this paper, replicate its method and further explore the stock trading problem beyond its scope. We will first describe the problem of interest and discuss the method proposed in this paper, as well as other existing alternatives. Then we will describe the data used for training and testing, and explain how such data is processed. We next include implementation details, followed by a discussion on model improvement and an alternative method to DDPG, called **Proximal Policy Optimization (PPO)**.    
+
+# OVERVIEW
 *
 * [Results](#results)
 * [Data Repliation](#data-replication)
 
 
-# STOCK TRADING
+
+# STOCK TRADING AS AN MDP
 -------
 
 # RESULTS
@@ -160,3 +165,6 @@ python -m baselines.run --alg=ppo2 --network=mlp --env=StockTrade-v0 --num_times
 
 It will prompt lines for entering the names of log files to store the episode rewards and the replay portfolio values for each state.
 
+# References
+* Xiong, Z., Liu, X. Y., Zhong, S., Yang, H., & Walid, A. (2018). Practical deep reinforcement learning approach for stock trading. *arXiv preprint arXiv:1811.07522*.
+* Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017). Proximal policy optimization algorithms. *arXiv preprint arXiv:1707.06347*.
