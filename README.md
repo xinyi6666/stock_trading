@@ -427,18 +427,32 @@ Recall that we have two MDP models for the stock trading process--the original m
 We set the trading interval for training and testing to be 30 minutes. In other words, an agent takes one action every 30 minutes. The initial portfolio value is set at $10,000. After training the agents based on the two models, we run the policies on the testing data and plot the corresponding growth of total reward. In the figure, the x-axis shows the trading dates, and the y-axis is the portfolio value in dollars. The blue curve is the portfolio growth of the policy trained with the refined model, and the red curve corresponds to the policy obtained with the model proposed in the paper. Our refined model outperforms the original model. As shown in this figure, the blue curve is consistently higher than the red curve; by the end of the testing period, the policy derived from the refined model almost doubled the profit of the original model. 
 
 
-We further experimented with DDPG in comparison to PPO with the refined model. The figures below capture the training and testing results of DDPG and PPO.
-
-
-Specifically, we superimpose the testing results of DDPG and PPO in the figure below. In these figures, the blue curve represents the portfolio change according to the policy found by DDPG, and the red curve is that of PPO. 
+We further experimented with DDPG in comparison to PPO with the refined model. The figures below capture the training and testing results of DDPG and PPO. The three figures below are the training curves of DDPG over the span of 1 minute (left), 15 minutes (middle) and 30 minutes (right) respectively. 
 
 <p align="center">
-  <img width="180" src="/fig/Testing_result%201%20min.pdf">
-  <img width="180" src="/fig/Testing_result%2015%20mins.pdf">
-  <img width="180" src="/fig/Testing_result.pdf">
+  <img width="180" src="/fig/Training_DDPG_1_min.jpg">
+  <img width="180" src="/fig/Training_DDPG_15_mins.jpg">
+  <img width="180" src="/fig/Training_DDPG_30_mins.jpg">
 </p>
 
-**Both policies attain similar portfolio values across all the trading dates. The two curves almost overlap over the first half of the trading dates. Toward the end of testing, the two portfolio values differ by only a few hundreds of dollars.**
+The next three figures are the training curves of PPO over the span of 1 minute (left), 15 minutes (middle) and 30 minutes (right) respectively.
+
+<p align="center">
+  <img width="180" src="/fig/Training_PPO_1_min.jpg">
+  <img width="180" src="/fig/Training_PPO_15_mins.jpg">
+  <img width="180" src="/fig/Training_PPO_30_mins.jpg">
+</p>
+
+
+Specifically, we superimpose the testing results of DDPG and PPO in the figures below. In these figures, the blue curve represents the portfolio change according to the policy found by DDPG, and the red curve is that of PPO. 
+
+<p align="center">
+  <img width="180" src="/fig/Testing_result_1_min.jpg">
+  <img width="180" src="/fig/Testing_result_15_mins.jpg">
+  <img width="180" src="/fig/Testing_result_30_mins.jpb">
+</p>
+
+Both policies attain similar portfolio values across all the trading dates. In the right-most figure, the two curves almost overlap over the first half of the trading dates. Toward the end of testing, the two portfolio values differ by only a few hundreds of dollars.
 
 <p align="center">
   <img width="300" src="/fig/table.png">
