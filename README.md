@@ -84,12 +84,11 @@ The figure above is the algorithm description provided in the paper. We created 
 </p>
 
 1. We first initialize the actor and critic networks, the target networks and a replay buffer. 
-2. For every episode, we take the initial state and instantiate a random process *N* to generate noise for actions from the actor network. The noise allows us to explore more actions. 
-3. We then loop over the time steps *t* and do the following.
-  * For the state at *t*, we obtain a noise-modified action from the actor network. Next we execute this action to get a reward and a new state. We add this chunk of new history to the replay buffer, from which we sample a mini batch.
-  * With this mini batch and outputs from the target networks, we optimize for a new critic network parameter and update the critic network. 
-  * Again using this mini batch, we use the actor and critic networks to get the sampled policy gradient, and update the actor policy. 
-  * Lastly we update the target networks and continue with the loop.  
+2. For every episode, we take the initial state and instantiate a random process *N* to generate noise for actions from the actor network. The noise allows us to explore more actions. We then loop over the time steps *t* and do the following.
+  3. For the state at *t*, we obtain a noise-modified action from the actor network. Next we execute this action to get a reward and a new state. We add this chunk of new history to the replay buffer, from which we sample a mini batch.
+  4. With this mini batch and outputs from the target networks, we optimize for a new critic network parameter and update the critic network. 
+  5. Again using this mini batch, we use the actor and critic networks to get the sampled policy gradient, and update the actor policy. 
+  6. Lastly we update the target networks and continue with the loop.  
 
 The replay buffer and the target networks are two technical tricks. Replay buffer reduces the temporal correlation of the simulated trajectories, whereby lowering the variance of estimations. The target networks regularize the learning algorithms of the actor network and the critic network. It has been observed that if we directly use the gradient from mini batch samples, these learning algorithms could diverge.
 
