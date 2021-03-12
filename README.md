@@ -20,6 +20,8 @@ The purpose of this project is to understand this paper, replicate its method an
   * [Test environment](#test-environment)
 * [Results and Evaluation](#results-and-evaluation)
 * [How to Use This Repository](#how-to-use-this-repository)
+* [Conclusion](#conclusion)
+* [References](#references)
 
 
 # Problem Description
