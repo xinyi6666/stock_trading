@@ -96,6 +96,7 @@ The replay buffer and the target networks are two technical tricks. Replay buffe
 ## Proximal Policy Optimization (PPO)
 
 
+
 # Data Acquisition and Processing
 ## Data used in the paper
 The authors choose the Dow Jones 30 stocks as the stocks of consideration. These stocks comprise 30 large companies, which are used to evaluate the Dow Jones Industrial Average. This is a commonly used index that reflects the overall performance of the US stock market. The authors had access to the daily prices of these chosen stocks from January 1, 2009 to September 30, 2018. The daily data from January 1, 2009 to January 1, 2016 is used for training and validation. Data after that up to September 30, 2018 was used for testing the performance of the trained agent. 
