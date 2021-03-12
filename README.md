@@ -85,16 +85,25 @@ The figure above is the algorithm description provided in the paper. We created 
 
 1. We first initialize the actor and critic networks, the target networks and a replay buffer. 
 2. For every episode, we take the initial state and instantiate a random process *N* to generate noise for actions from the actor network. The noise allows us to explore more actions. We then loop over the time steps *t* and do the following.
-  3. For the state at *t*, we obtain a noise-modified action from the actor network. Next we execute this action to get a reward and a new state. We add this chunk of new history to the replay buffer, from which we sample a mini batch.
-  4. With this mini batch and outputs from the target networks, we optimize for a new critic network parameter and update the critic network. 
-  5. Again using this mini batch, we use the actor and critic networks to get the sampled policy gradient, and update the actor policy. 
-  6. Lastly we update the target networks and continue with the loop.  
+3. For the state at *t*, we obtain a noise-modified action from the actor network. Next we execute this action to get a reward and a new state. We add this chunk of new history to the replay buffer, from which we sample a mini batch.
+4. With this mini batch and outputs from the target networks, we optimize for a new critic network parameter and update the critic network. 
+5. Again using this mini batch, we use the actor and critic networks to get the sampled policy gradient, and update the actor policy. 
+6. Lastly we update the target networks and continue with the loop.  
 
 The replay buffer and the target networks are two technical tricks. Replay buffer reduces the temporal correlation of the simulated trajectories, whereby lowering the variance of estimations. The target networks regularize the learning algorithms of the actor network and the critic network. It has been observed that if we directly use the gradient from mini batch samples, these learning algorithms could diverge.
 
 
 ## Proximal Policy Optimization (PPO)
+We explored another method that works well with continuous action space, called PPO. It also falls under the policy gradient framework for reinforcement learning. This method has similar benefits as the trust region policy optimization, but its implementation is easier. The key feature of PPO is its surrogate objective function:  
+<p align="center">
+  <img width="480" src="https://user-images.githubusercontent.com/17188583/110910543-1feae780-82d7-11eb-8958-4398cf97f2bd.png">
+</p>
+We next provide some intuition behind this objective. First of all, this objective contains an advantage term *A*. 
 
+TODO!!!
+Which is essentially the action value of some action minus the expected reward to go under a given state. This value tells us if the outcome of an action is better or worse than average, so that we can increase or decrease the weight for this action. 
+This PG objective also has a clipping component. 
+The reason for this is that, when we run gradient descent over limited batches of past experiences, the network parameters can go farther and farther away from the desired range and the policy is ruined. This clipping part restricts how far the parameter updates can go to resolve this problem. 
 
 
 # Data Acquisition and Processing
@@ -376,6 +385,10 @@ It will prompt lines for entering the names of log files to store the episode re
   <img width="300" src="/fig/table.png">
 </p>
 
+# Conclusion
+
+
 # References
 * Xiong, Z., Liu, X. Y., Zhong, S., Yang, H., & Walid, A. (2018). Practical deep reinforcement learning approach for stock trading. *arXiv preprint arXiv:1811.07522*.
-* Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017). Proximal policy optimization algorithms. *arXiv preprint arXiv:1707.06347*.
+* Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017). Proximal policy optimization algorithms.![obj](https://user-images.githubusercontent.com/17188583/110910535-195c7000-82d7-11eb-9176-2b362a467030.png)
+ *arXiv preprint arXiv:1707.06347*.
