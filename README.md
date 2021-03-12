@@ -52,10 +52,10 @@ Next we discuss existing methods for the stock trading problem, and provide an o
 
 
 # Methods
-In this section, we first describe and evaluate two earlier methods for the stock trading problem. Then we discuss the method proposed in the paper and highlight the key algorithm-DDPG. After that, we give an overview of an alternative algorithm to DDPG called PPO that we explored beyond the assigned paper.
+In this section, we first describe and evaluate two earlier methods for the stock trading problem. Then we discuss the method proposed in the paper and highlight the key algorithm--DDPG. After that, we give an overview of PPO, which is an alternative algorithm to DDPG that we explored beyond the assigned paper.
 
 ## Existing methods
-Many other researchers have studied the stock trading problem. For example, the Modern Portfolio Theory and Markowitz Model were proposed in the 50s. This is a traditional approach to the portfolio management problem, in which we are given a collection of investment options, like different stocks. We are interested in figuring out a way to assign weights to the available options, such that the expected return is maximized subject to a certain risk level. The optimization model in this approach utilizes the mean and covariance information of the past performance of the stocks. 
+Many other researchers have studied the stock trading problem. For example, the Modern Portfolio Theory and Markowitz Model were proposed in the 50s. This is a traditional approach to the portfolio management problem. In this problem, we are given a collection of investment options, like different stocks. We are interested in figuring out a way to assign weights to the available options, such that the expected return is maximized subject to a certain risk level. The optimization model in this approach utilizes the mean and covariance information of the past performance of the stocks. 
 
 This approach has a few disadvantages: An observation is that a large amount of information is needed in this method, including the joint probability distribution among all the stocks, and a massive covariance matrix, things become intractable very quickly when the problem scale increases. Also people observed that it has stability issues. Basically when there’s a small change to the input, the optimal portfolio can change drastically. 
 
@@ -73,7 +73,9 @@ Next we focus on this DDPG algorithm. DDPG is modified from the deterministic po
 </p>
 
 The overall structure of DDPG is consistent with the policy gradient  framework that we’ve seen in the lectures. We also learned from the lectures that the crux of the policy gradient framework is to construct a good estimator for the gradient of the expectation function in the objective, usually denoted by capital J. In the general form of an estimator for its gradient, there is a Q term capturing THE VALUE resulted from some actions given states. And this is followed by  the gradient of log pi, which encodes information about decisions made on the actor’s end. These two portions can be approximated by deep neural networks, which is the actor-critic component in the PG framework. This figure is provided in the paper. This upper left network is the actor network. This mu maps the states to the actions, and it learns about how the agent selects actions. Here theta_mu is the set of network parameters of mu. N is a random process. Noises are sampled from N and added to the output of mu to broaden the scope of explorable actions. The network on the right is the critic network. This Q learns about the policy value of an action under a state, which in some way critiques the current policy that the agent adopts. Theta Q is the set of parameters in the critic network.
-
+<p align="center">
+  <img width="640" src="/fig/DDPG_algorithm.png">
+</p>
 
 
 <p align="center">
@@ -86,11 +88,10 @@ The overall structure of DDPG is consistent with the policy gradient  framework 
 
 # Data Acquisition and Processing
 ## Data used in the paper
-The authors choose to use the Dow jones 30 stocks as the stocks of consideration. These stocks comprise 30 large companies, which are used to evaluate the Dow Jones Industrial Average. This is a commonly used index that reflects the overall performance of the US stock market. The authors had access to the daily prices of these chosen stocks from January the first in 2009 all the way up to September the 30th in 2018. The daily data from January the first in 2009 to the first day of 2016 is used for training and validation. Data after that up to September the 30th in 2018 was used for testing the trained agent’s performance. Yahoo finance is a wonderful source for alternative datasets. 
+The authors choose the Dow Jones 30 stocks as the stocks of consideration. These stocks comprise 30 large companies, which are used to evaluate the Dow Jones Industrial Average. This is a commonly used index that reflects the overall performance of the US stock market. The authors had access to the daily prices of these chosen stocks from January 1, 2009 to September 30, 2018. The daily data from January 1, 2009 to January 1, 2016 is used for training and validation. Data after that up to September 30, 2018 was used for testing the performance of the trained agent. 
 
 ## Data used in this project
-For this project, we used the provided minute-level volume weighted average prices. TODO:SPECIFY TRAINING AND TESTING SETUP This set of data happens to have many missing entries and NAN entries.  One company is omitted for too many missing dates. For consistency, we omit data during after-hours and stock market holidays. We noticed that some data is still missing, so we filled in with the nearest previous data.
-
+For this project, we used the provided minute-level volume weighted average stock prices. This set of data happens to have many missing entries and NAN entries. The stock of one company is omitted for too many missing dates, so we considered 85 stocks in total. In addition, we only utilize data during trading hours on trading days (days that are not stock market holidays) for consistency. To deal with the data entries that are still missing, we fill them in with the nearest previous price data. The minute-level prices from September 5, 2018 to November 1, 2020 were used to train the agent. The data after November 1, 2020 up to February 17, 2021 was used for testing. More details of data processing is included in the implementation section.
 
 
 
