@@ -376,24 +376,26 @@ It will prompt lines for entering the names of log files to store the episode re
 
 
 # Results and Evaluation
-Now we are going to present the result using the model mentioned in the paper and the one using the refined model. For the training and testing data, we have selected 30 mins as the trading interval. This means that the agent takes action every 30 minutes. The initial portfolio value is $10000. 
+Recall that now we have two MDP models for the stock trading process--the paper introduces a model, and we proposed a refined model with adjustments in the states and actions. Now we present the results obtained using both the original model and the refined model in the figure below. 
 <p align="center">
   <img width="480" src="/fig/old_vs_new_model.png">
 </p>
-After training, we run them on the testing data and plotted the results to see how they behave. In the graph, the x axis is the trading dates, and the y-axis is the portfolio value in dollars. The blue line indicates the portfolio change for refined model, and the red one shows the change using the model proposed in the paper. We can see that our refined model outperforms the original model.
+We set the trading interval for training and testing to be 30 minutes. In other words, an agent takes one action every 30 minutes. The initial portfolio value is set at $10,000. After training the agents based on the two models, we run the policies on the testing data and plot the corresponding growth of total reward. In the figure, the x-axis shows the trading dates, and the y-axis is the portfolio value in dollars. The blue curve is the portfolio growth of the policy trained with the refined model, and the red curve corresponds to the policy obtained with the model proposed in the paper. Our refined model outperforms the original model. As shown in this figure, by the end of the testing period, the refined model almost doubled the profit of the original model. 
 
-At the left side, it is the testing result for comparing DDPG and PPO. Similar to previous experiment, we selected 30 mins as trading interval. Here the blue line is the portfolio change using DDPG, and the red one is using PPO. We can see that DDPG and PPO run very similar at early stage, only differ a few hundreds at the end of testing. 
-On the right side, we have compared them with SPY500 index and QQQ whose components are the stocks of nasdaq top 100 companies.  We compared for their return, standard deviation of excess return, and their Sharpe ratios. We can see that both policies trained by RL algorithms in the result out-beat market index by over 10% in returns. Although their stds are larger, their Sharpe ratio are comparable with the market index.
+The next two figures capture the testing results of DDPG and PPO. Identical to the last set of experiments, we selected 30 minutes as trading interval. In the figure below, the blue curve represents the portfolio change of the policy found by DDPG, and the red curve is that of PPO. 
 <p align="center">
   <img width="480" src="/fig/results.png">
 </p>
+Both policies attain similar portfolio values across all the trading dates. The two curves almost overlap over the first half of the trading dates. Toward the end of testing, the two portfolio values differ by only a few hundreds of dollars. 
+
 <p align="center">
   <img width="300" src="/fig/table.png">
 </p>
-**TODO!!!**
+Lastly, we compare the DDPG and PPO results with SPY500 index and QQQ, whose components are the stocks of Nasdaq top 100 companies. More specifically, we evaluate these methods in terms of the return, the standard deviation of excess return, and Sharpe ratios. From the table above, we observe that both policies trained by the deep reinforcement learning algorithms beat the market index by over 10% in returns. Although their standard deviations are larger, their Sharpe ratios are comparable with the market index.
+
 
 # Conclusion
-We successfully replicated the method from *Practical Deep Reinforcement Learning Approach for Stock Trading* by Xiong et al. for the stock trading problem. We further adjusted the MDP model of the stock trading process, which significantly improves the results after optimizing with DDPG. Moreover, we went beyond the paper and experimented with an alternative method called PPO. It is not surprising that DDPG and PPO achieved similar results. However, it is worth noting that PPO trains the agent faster and is less sensitive than DDPG to the choice of learning rate. Other extensions from this paper can be explored, such as trying other alternatives of DDPG (e.g. TRPO), and enriching the model by including additional factors (e.g. volumes, technical indicators). 
+In this project, we successfully replicated the method from *Practical Deep Reinforcement Learning Approach for Stock Trading* by Xiong et al. for the stock trading problem. We further adjusted the MDP model of the stock trading process, which improves the trading strategy obtained via DDPG. Moreover, we went beyond the paper and experimented with an alternative method called PPO. Although DDPG and PPO achieved similar results, it is worth noting that PPO trains the agent faster and is less sensitive than DDPG to the choice of learning rate. Other extensions from this paper can be explored in the future, such as trying other alternatives of DDPG (e.g. TRPO), and enriching the model by including additional factors (e.g. volumes, technical indicators). 
 
 # References
 * Xiong, Z., Liu, X. Y., Zhong, S., Yang, H., & Walid, A. (2018). Practical deep reinforcement learning approach for stock trading. *arXiv preprint arXiv:1811.07522*.
