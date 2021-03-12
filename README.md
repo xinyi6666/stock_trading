@@ -55,32 +55,43 @@ Next we discuss existing methods for the stock trading problem, and provide an o
 In this section, we first describe and evaluate two earlier methods for the stock trading problem. Then we discuss the method proposed in the paper and highlight the key algorithm--DDPG. After that, we give an overview of PPO, which is an alternative algorithm to DDPG that we explored beyond the assigned paper.
 
 ## Existing methods
-Many other researchers have studied the stock trading problem. For example, the Modern Portfolio Theory and Markowitz Model were proposed in the 50s. This is a traditional approach to the portfolio management problem. In this problem, we are given a collection of investment options, like different stocks. We are interested in figuring out a way to assign weights to the available options, such that the expected return is maximized subject to a certain risk level. The optimization model in this approach utilizes the mean and covariance information of the past performance of the stocks. 
+Many other researchers have studied the stock trading problem. For example, the Modern Portfolio Theory and Markowitz Model were proposed in the 50s. This is a traditional approach to the portfolio management problem. In this problem, we are given a collection of investment options, such as different stocks. The goal is to assign proper weights to the available investment options, such that the expected total return is maximized, subject to some risk constraint. This approach utilizes the mean and covariance information of the past performance of the stocks, which leads to a disadvantage--a large amount of information is needed, including the joint probability distribution and a covariance matrix. They become intractable very quickly as the problem scale increases. People have also observed stability issues. When there is a small change in the input, the optimal portfolio returned by this method can change drastically. 
 
-This approach has a few disadvantages: An observation is that a large amount of information is needed in this method, including the joint probability distribution among all the stocks, and a massive covariance matrix, things become intractable very quickly when the problem scale increases. Also people observed that it has stability issues. Basically when there’s a small change to the input, the optimal portfolio can change drastically. 
+Another approach is to use MDP to model the stock trading process, and then maximize the expected total reward using dynamic programming. Value iteration and policy iteration require the transition model to be known. This becomes a drawback when we do not know how to make specifications for the MDP. Also, this requirement restricts the tractable sizes of the state and action spaces. Therefore, this approach is also limited for large-scale problems. 
 
-Another approach is to use Markov decision process to model the stock trading process, and then maximize the expected return using dynamic programming. From the solution we can then obtain an optimal policy. For value iteration and policy iteration, etc. the exact structure of the MDP, like the transition probabilities, are needed. This becomes a drawback when we don’t know how to make specifications to the Markov decision process. Also, this requirement restricts the tractable sizes of the state and action spaces, so this approach is not the best for large-scale problems. Sometimes we might not know the rewards either. So we need a better method especially for complex systems like the stock market.
+The drawbacks of these two methods can be overcome with a deep reinforcement learning approach. 
 
 ## Method proposed in the paper
-Now we give an overview of the method that the authors came up with for the stock trading problem. In particular, we describe the deep deterministic policy gradient algorithm that this whole study relies on. 
+We now go over the method adopted by the authors for the stock trading problem. In particular, we highlight the DDPG algorithm that the paper relies on. 
 
-The high-level idea of the method in this paper is  to model the stock trading process with an MDP, which we have described in the first slide, and then to optimize the total expected reward by maximizing an action-value function. This optimization problem is quite challenging because the action value function is unknown to the decision maker. It has to be learned with feedbacks from the environment regarding different actions. This makes deep reinforcement learning a desirable approach. More specifically, this optimization problem is solved by an algorithm called deep deterministic policy gradient algorithm (DDPG).
+The high-level idea of the method in this paper is to model the stock trading process with an MDP (described in an earlier section), and then to optimize the expected total reward by maximizing an action-value function. The underlying challenge is that the action-value function is unknown to the agent, so it has to be learned from the feedbacks given by  the environment regarding different actions. This makes deep reinforcement learning a desirable approach. In the paper, this optimization problem is solved by DDPG.
 
 ## Deep Deterministic Policy Gradient (DDPG)
-Next we focus on this DDPG algorithm. DDPG is modified from the deterministic policy gradient algorithm, and the authors adapted DDPG specifically to the MDP model for stock trading. 
+Next we focus on the DDPG algorithm. DDPG is a variant of the deterministic policy gradient algorithm. The authors adapted DDPG specifically to the MDP model for stock trading. We know that the crux of the policy gradient framework is to construct a good estimator for the gradient, which usually comprises of a value (Q) term and an actor (gradient of log policy evaluation) term. DDPG approximates these two terms with two deep neural networks. called the actor network and the critic network. 
+
 <p align="center">
   <img width="480" src="/fig/actor_critic.png">
 </p>
 
-The overall structure of DDPG is consistent with the policy gradient  framework that we’ve seen in the lectures. We also learned from the lectures that the crux of the policy gradient framework is to construct a good estimator for the gradient of the expectation function in the objective, usually denoted by capital J. In the general form of an estimator for its gradient, there is a Q term capturing THE VALUE resulted from some actions given states. And this is followed by  the gradient of log pi, which encodes information about decisions made on the actor’s end. These two portions can be approximated by deep neural networks, which is the actor-critic component in the PG framework. This figure is provided in the paper. This upper left network is the actor network. This mu maps the states to the actions, and it learns about how the agent selects actions. Here theta_mu is the set of network parameters of mu. N is a random process. Noises are sampled from N and added to the output of mu to broaden the scope of explorable actions. The network on the right is the critic network. This Q learns about the policy value of an action under a state, which in some way critiques the current policy that the agent adopts. Theta Q is the set of parameters in the critic network.
+This actor network takes in the current state and outputs an action. We note that the action space can be continuous. The critic network takes this action and the current state as input, and estimates the value (Q). This estimated value then critiques the actor’s decision. 
 <p align="center">
   <img width="640" src="/fig/DDPG_algorithm.png">
 </p>
-
+The figure above is the algorithm description provided in the paper. We created the animation below to help visualize the process. The flowchart shows the essential components in this algorithm, namely the actor and critic networks, the target actor and target critic networks, and a replay buffer. We next go over the DDPG algorithm; the green highlights in the animation correpond to the components involved in each step. 
 
 <p align="center">
   <img width="640" src="/fig/DDPG_overview.gif">
 </p>
+
+1. We first initialize the actor and critic networks, the target networks and a replay buffer. 
+2. For every episode, we take the initial state and instantiate a random process *N* to generate noise for actions from the actor network. The noise allows us to explore more actions. 
+3. We then loop over the time steps *t* and do the following.
+  * For the state at *t*, we obtain a noise-modified action from the actor network. Next we execute this action to get a reward and a new state. We add this chunk of new history to the replay buffer, from which we sample a mini batch.
+  * With this mini batch and outputs from the target networks, we optimize for a new critic network parameter and update the critic network. 
+  * Again using this mini batch, we use the actor and critic networks to get the sampled policy gradient, and update the actor policy. 
+  * Lastly we update the target networks and continue with the loop.  
+
+The replay buffer and the target networks are two technical tricks. Replay buffer reduces the temporal correlation of the simulated trajectories, whereby lowering the variance of estimations. The target networks regularize the learning algorithms of the actor network and the critic network. It has been observed that if we directly use the gradient from mini batch samples, these learning algorithms could diverge.
 
 
 ## Proximal Policy Optimization (PPO)
