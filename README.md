@@ -94,18 +94,14 @@ The replay buffer and the target networks are two technical tricks. Replay buffe
 
 
 ## Proximal Policy Optimization (PPO)
-We explored another method that works well with continuous action space, called PPO. It also falls under the policy gradient framework for reinforcement learning. This method has similar benefits as the trust region policy optimization, but its implementation is easier. The key feature of PPO is its surrogate objective function:  
+We explored another method that works well with continuous action space, called PPO. It also falls under the policy gradient framework for reinforcement learning. This method has similar benefits as the trust region policy optimization (TRPO). There are two versions of PPO surrogate objective functions. One version involves a KL penalty term. We consider the other version stated below, for its ease of implementation.  
 <p align="center">
   <img width="480" src="https://user-images.githubusercontent.com/17188583/110910543-1feae780-82d7-11eb-8958-4398cf97f2bd.png">
 </p>
-We next provide some intuition behind this objective. First of all, this objective contains an advantage term *A*. 
+PPO maximizes this objective to acquire the optimal parameter theta. 
 
-**TODO!!!**
-Which is essentially the action value of some action minus the expected reward to go under a given state. This value tells us if the outcome of an action is better or worse than average, so that we can increase or decrease the weight for this action. 
-This PG objective also has a clipping component. 
-The reason for this is that, when we run gradient descent over limited batches of past experiences, the network parameters can go farther and farther away from the desired range and the policy is ruined. This clipping part restricts how far the parameter updates can go to resolve this problem. 
+We next provide some intuition behind this objective function. The estimated advantage term *A* in the objective is an approximation of the difference between the action value of some action and the expected reward to go under a given state. This difference informs us whether the outcome of an action is better or worse than average, so that we can increase or decrease the weight for this action accordingly. The *r* term represents a ratio that measures how different two policies are. As we run gradient descent over limited batches of past experiences, the policy parameters could be pushed far enough to ruin the policy. The ratio and the clip operation adjust the estimated advantage, such that the new policy will not be too far from the previous policy. 
 
-In general, it has two versions, one version has the objective involving a KL penalty term.  In the implementation of baseline, it uses the other version. Here is its objective. First, we have advantage in the objective. This is essentially the action value of some action minus the expected reward to go under a given state.  We want to find the parameter theta which maximize this objective. The basic idea is that we first construct a ratio, denoted r_t, that measures how difference between two policies. Then we clip the estimated advantage according to r_t to avoid the new policy is going far away from the old policy. This is alike trust region but easier to compute. It discourages large policy change if it is outside our desired zone.
 
 # Data Acquisition and Processing
 ## Data used in the paper
