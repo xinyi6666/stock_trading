@@ -193,7 +193,7 @@ end_row = 211806
 ```
 
 ### Constructor 
-Now we are going to create constructor
+Now we are going to create constructor. Inside this method, we need to define the action space and observation space. For the model in the paper, we declare an interger space for defining how many stocks to buy and sell each time, and a observation space for all possible states. We also manually reset the current state to the initial state.   
 ```
 
 class StockTradingEnv(gym.Env):
@@ -230,6 +230,7 @@ class StockTradingEnv(gym.Env):
 ```
 
 ### Reset the environment
+Here we reset the environment state to the initial one. We reset the starting row, and porfolio value, reward, and etc.
 ```
     def reset(self):
         self.row = start_row
@@ -335,7 +336,7 @@ Otherwise, we calculate the part of the state by calling `_buy_sell_stock`. Afte
 ```
 
 ### Other methods
- 
+These methods are required for inheriting the Gym class by default. They do not have any specific functionality in stock trading environment.
 ```
     def render(self, mode='human'):
         return self.state
@@ -609,6 +610,14 @@ python -m baselines.run --alg=ppo2 --network=mlp --env=StockTrade-v0 --num_times
 
 It will prompt lines for entering the names of log files to store the episode rewards and the replay portfolio values for each state.
 
+## Result Visualization ##
+By using `data_plotter.py`, we can easily visualize the result. To use that, first cp `data_plotter.py` to the same folder of the log files then run it:
+```
+cp src/data_plotter.py ./log
+python data_plotter.py
+```
+
+It will also output the return, standard deviation, and Sharpe ratio information. You can also select which graph you want to print by editing line 119-130 of `data_plotter.py`.
 
 # Conclusion
 In this project, we successfully replicated the method from *Practical Deep Reinforcement Learning Approach for Stock Trading* by Xiong et al. for the stock trading problem. We further adjusted the MDP model of the stock trading process, which improves the trading strategy obtained via DDPG. Moreover, we went beyond the paper and experimented with an alternative method called PPO. Although DDPG and PPO achieved similar results, it is worth noting that PPO trains the agent faster and is less sensitive than DDPG to the choice of learning rate. Other extensions from this paper can be explored in the future, such as trying other alternatives of DDPG (e.g. TRPO), and enriching the model by including additional factors (e.g. volumes, technical indicators). 
@@ -616,3 +625,4 @@ In this project, we successfully replicated the method from *Practical Deep Rein
 # References
 * Xiong, Z., Liu, X. Y., Zhong, S., Yang, H., & Walid, A. (2018). Practical deep reinforcement learning approach for stock trading. *arXiv preprint arXiv:1811.07522*.
 * Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017). Proximal policy optimization algorithms. *arXiv preprint arXiv:1707.06347*.
+* Kim, A. (2019) Create custom gym environments from scratch — A stock market example. https://towardsdatascience.com/creating-a-custom-openai-gym-environment-for-stock-trading-be532be3910e
