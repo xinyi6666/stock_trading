@@ -455,7 +455,7 @@ Specifically, we superimpose the testing results of DDPG and PPO in the figures 
 Both policies attain similar portfolio values across all the trading dates. In the right-most figure, the two curves almost overlap over the first half of the trading dates. Toward the end of testing, the two portfolio values differ by only a few hundreds of dollars.
 
 <p align="center">
-  <img width="300" src="/fig/new_table.jpeg">
+  <img width="420" src="/fig/new_table.jpeg">
 </p>
 
 Lastly, we compare the DDPG and PPO results with SPY500 index and QQQ, whose components are the stocks of Nasdaq top 100 companies. More specifically, we evaluate these methods in terms of the return, the standard deviation of excess return, and Sharpe ratios. From the table above, we observe that both policies trained by the deep reinforcement learning algorithms beat the market index by over 10% in returns. Although their standard deviations are larger, their Sharpe ratios are comparable with the market index. Such results suggest that deep reinforcement learning approaches have great potentials in tackling the stock trading problem. 
