@@ -376,7 +376,7 @@ It will prompt lines for entering the names of log files to store the episode re
 
 
 # Results and Evaluation
-Recall that now we have two MDP models for the stock trading process--the paper introduces a model, and we proposed a refined model with adjustments in the states and actions. Now we present the results obtained using both the original model and the refined model in the figure below. 
+Recall that we have two MDP models for the stock trading process--the paper introduces a model, and we proposed a refined model with adjustments in the states and actions. Now we present the results obtained using both the original model and the refined model in the figure below. 
 <p align="center">
   <img width="480" src="/fig/old_vs_new_model.png">
 </p>
