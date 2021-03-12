@@ -428,7 +428,6 @@ Lastly, we compare the DDPG and PPO results with SPY500 index and QQQ, whose com
 
 # How to Use This Repository
 ## Install dependencies
--------
 1) Install the following dependencies: 
 
 
@@ -457,7 +456,7 @@ python -m baselines.run --alg=deepq --env=PongNoFrameskip-v4 --num_timesteps=1e6
 If this works, then it is ready to incorportate stock trading environment.
 
 ## Build stock trading environment
------
+
 1) Clone the repository
 
   ```
@@ -490,7 +489,7 @@ register(
         )
 ```
 ## Edit baselines run file
-----
+
 Now we need to modify the `run.py` in the baselines
 ```
 cd $BASELINES_DIR/baselines/
@@ -500,7 +499,7 @@ cp src/run.py ./
 This will rename the original `run.py` to `run.bak` in the baseline folder and copy our customized `run.py` to baselines folder.
 
 ## Process data
-----
+
 If you do have the raw minute-level data from 2018/09/05 to 2021/02/17, you can use `src/data_process.py` to generate the data use for training and testing. If you do not have the minute-level data, or only have day-level data, please see section **GENERATING YOUR OWN DATA FROM ANY SOURCES**.
 
 1) Locate the folder `historical_price` which contains the historical prices for companies
@@ -526,7 +525,7 @@ cp clean_data.csv $GYM/envs/stocktrade/Data/
 ```
 
 ## Generating your own data from any sources (optional) 
-----
+
 1) If you don't have the correct raw data files, you need to modify the `data_process.py` file to write a `clean_data.csv` with a table in the following form:
 ```
             date   min      AAL      AAPL  ...      WFC       WMT      XOM      XRX
@@ -544,7 +543,7 @@ cp clean_data.csv $GYM/envs/stocktrade/Data/
 
 
 ## Training and testing 
-----
+
 1) Edit `path` in `$GYM_DIR/envs/stocktrade/stock_trading_env.py` and `$GYM_DIR/envs/stocktrade/stock_trading_testenv.py` to your local paths
 
 2) (Optional) Edit `trade_interval` in `$GYM_DIR/envs/stocktrade/stock_trading_env.py` and `$GYM_DIR/envs/stocktrade/stock_trading_testenv.py` to the number of minutes of trading interval you want
