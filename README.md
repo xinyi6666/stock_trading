@@ -390,5 +390,4 @@ It will prompt lines for entering the names of log files to store the episode re
 
 # References
 * Xiong, Z., Liu, X. Y., Zhong, S., Yang, H., & Walid, A. (2018). Practical deep reinforcement learning approach for stock trading. *arXiv preprint arXiv:1811.07522*.
-* Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017). Proximal policy optimization algorithms.![obj](https://user-images.githubusercontent.com/17188583/110910535-195c7000-82d7-11eb-9176-2b362a467030.png)
- *arXiv preprint arXiv:1707.06347*.
+* Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017). Proximal policy optimization algorithms. *arXiv preprint arXiv:1707.06347*.
