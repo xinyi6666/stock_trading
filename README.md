@@ -430,26 +430,26 @@ We set the trading interval for training and testing to be 30 minutes. In other 
 We further experimented with DDPG in comparison to PPO with the refined model. The figures below capture the training and testing results of DDPG and PPO. The three figures below are the training curves of DDPG over the span of 1 minute (left), 15 minutes (middle) and 30 minutes (right) respectively. 
 
 <p align="center">
-  <img width="200" src="/fig/Training_DDPG_1_min.jpg">
-  <img width="200" src="/fig/Training_DDPG_15_mins.jpg">
-  <img width="200" src="/fig/Training_DDPG_30_mins.jpg">
+  <img width="300" src="/fig/Training_DDPG_1_min.jpg">
+  <img width="300" src="/fig/Training_DDPG_15_mins.jpg">
+  <img width="300" src="/fig/Training_DDPG_30_mins.jpg">
 </p>
 
 The next three figures are the training curves of PPO over the span of 1 minute (left), 15 minutes (middle) and 30 minutes (right) respectively.
 
 <p align="center">
-  <img width="200" src="/fig/Training_PPO_1_min.jpg">
-  <img width="200" src="/fig/Training_PPO_15_mins.jpg">
-  <img width="200" src="/fig/Training_PPO_30_mins.jpg">
+  <img width="300" src="/fig/Training_PPO_1_min.jpg">
+  <img width="300" src="/fig/Training_PPO_15_mins.jpg">
+  <img width="300" src="/fig/Training_PPO_30_mins.jpg">
 </p>
 
 
 Specifically, we superimpose the testing results of DDPG and PPO in the figures below. In these figures, the blue curve represents the portfolio change according to the policy found by DDPG, and the red curve is that of PPO. 
 
 <p align="center">
-  <img width="200" src="/fig/Testing_result_1_min.jpg">
-  <img width="200" src="/fig/Testing_result_15_mins.jpg">
-  <img width="200" src="/fig/Testing_result_30_mins.jpb">
+  <img width="300" src="/fig/Testing_result_1_min.jpg">
+  <img width="300" src="/fig/Testing_result_15_mins.jpg">
+  <img width="300" src="/fig/Testing_result_30_mins.jpg">
 </p>
 
 Both policies attain similar portfolio values across all the trading dates. In the right-most figure, the two curves almost overlap over the first half of the trading dates. Toward the end of testing, the two portfolio values differ by only a few hundreds of dollars.
