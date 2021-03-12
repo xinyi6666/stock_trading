@@ -1,6 +1,6 @@
 The stock market is an extremely complex dynamic system. A remarkable number of works in the literature has been devoted to understanding the stock market and developing effective trading strategies. In the paper titled *Practical Deep Reinforcement Learning Approach for Stock Trading* by Xiong et al., the authors examine the stock trading problem and proposes a deep reinforcement learning approach to tackle this challenging problem. In particular, the authors apply **Deep Deterministic Policy Gradient (DDPG)** to optimize for an effective stock trading strategy. 
 
-The purpose of this project is to understand this paper, replicate its method and further explore the stock trading problem beyond the scope of this paper. We will first describe the problem of interest. Then we will discuss the method proposed in this paper and contrast it with existing alternatives. Next, we will describe the data used for training and testing, and explain how such data is processed. We include implementation details, followed by a discussion on model improvement and an alternative method to DDPG, called **Proximal Policy Optimization (PPO)**. We wrap up with experiment results and an evaluation. Below is an overview of the following discussions.     
+The purpose of this project is to understand this paper, replicate its method and further explore the stock trading problem beyond the scope of this paper. We will first describe the problem of interest formulated as a Markov Decision Process model, followed by a discussion on model improvement. Then we will discuss the method proposed in this paper and contrast it against existing alternatives. We will highlight DDPG and its alternative called **Proximal Policy Optimization (PPO)** which we explored beyond this paper. Next, we will describe the data used for training and testing, and explain how such data is processed. We include implementation details and code execution instructions. We wrap up with the experiment results, the method evaluation and some concluding remarks. Below is an overview of the succeeding discussions.     
 
 # Overview
 * [Code Explanation](#code-explaination)
@@ -95,12 +95,14 @@ The replay buffer and the target networks are two technical tricks. Replay buffe
 
 ## Proximal Policy Optimization (PPO)
 We explored another method that works well with continuous action space, called PPO. It also falls under the policy gradient framework for reinforcement learning. This method has similar benefits as the trust region policy optimization (TRPO). There are two versions of PPO surrogate objective functions. One version involves a KL penalty term. We consider the other version stated below, for its ease of implementation.  
+
 <p align="center">
   <img width="480" src="https://user-images.githubusercontent.com/17188583/110910543-1feae780-82d7-11eb-8958-4398cf97f2bd.png">
 </p>
+
 PPO maximizes this objective to acquire the optimal parameter theta. 
 
-We next provide some intuition behind this objective function. The estimated advantage term *A* in the objective is an approximation of the difference between the action value of some action and the expected reward to go under a given state. This difference informs us whether the outcome of an action is better or worse than average, so that we can increase or decrease the weight for this action accordingly. The *r* term represents a ratio that measures how different two policies are. As we run gradient descent over limited batches of past experiences, the policy parameters could be pushed far enough to ruin the policy. The ratio and the clip operation adjust the estimated advantage, such that the new policy will not be too far from the previous policy. 
+We next provide some intuitions behind this objective function. The estimated advantage term *A* in this objective is an approximation of the difference between the action value of some action and the expected reward to go under a given state. This difference informs us whether the outcome of an action is better or worse than average, so that we can increase or decrease the weight for this action accordingly. The *r* term represents a ratio that measures how different two policies are. As we run gradient descent over limited batches of past experiences, the policy parameters could be pushed far enough to ruin the policy. The ratio and the clip operation adjust the estimated advantage, such that the new policy will not be too far from the previous policy. 
 
 
 # Data Acquisition and Processing
@@ -373,21 +375,26 @@ It will prompt lines for entering the names of log files to store the episode re
 
 # Results and Evaluation
 Recall that we have two MDP models for the stock trading process--the original model introduced in the paper, and the refined model with adjustments in the states and actions that we proposed. Now we present the results obtained using both the original model and the refined model in the figure below. 
+
 <p align="center">
   <img width="480" src="/fig/old_vs_new_model.png">
 </p>
+
 We set the trading interval for training and testing to be 30 minutes. In other words, an agent takes one action every 30 minutes. The initial portfolio value is set at $10,000. After training the agents based on the two models, we run the policies on the testing data and plot the corresponding growth of total reward. In the figure, the x-axis shows the trading dates, and the y-axis is the portfolio value in dollars. The blue curve is the portfolio growth of the policy trained with the refined model, and the red curve corresponds to the policy obtained with the model proposed in the paper. Our refined model outperforms the original model. As shown in this figure, the blue curve is consistently higher than the red curve; by the end of the testing period, the policy derived from the refined model almost doubled the profit of the original model. 
 
 
 The next figure captures the testing results of DDPG and PPO. Identical to the last set of experiments, we selected 30 minutes as the trading interval. In the figure below, the blue curve represents the portfolio change according to the policy found by DDPG, and the red curve is that of PPO. 
+
 <p align="center">
   <img width="480" src="/fig/results.png">
 </p>
+
 Both policies attain similar portfolio values across all the trading dates. The two curves almost overlap over the first half of the trading dates. Toward the end of testing, the two portfolio values differ by only a few hundreds of dollars. 
 
 <p align="center">
   <img width="300" src="/fig/table.png">
 </p>
+
 Lastly, we compare the DDPG and PPO results with SPY500 index and QQQ, whose components are the stocks of Nasdaq top 100 companies. More specifically, we evaluate these methods in terms of the return, the standard deviation of excess return, and Sharpe ratios. From the table above, we observe that both policies trained by the deep reinforcement learning algorithms beat the market index by over 10% in returns. Although their standard deviations are larger, their Sharpe ratios are comparable with the market index. Such results suggest that deep reinforcement learning approaches have great potentials in tackling the stock trading problem. 
 
 
