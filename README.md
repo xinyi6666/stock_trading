@@ -4,6 +4,7 @@ The purpose of this project is to understand this paper, replicate its method an
 
 # Overview
 * [Problem Description](#problem-description)
+  * [Stock trading process as an MDP](#stock-trading-process-as-an-MDP)
 * [Code Explanation](#code-explaination)
 * [Results](#results)
 * [Data Replication](#data-replication)
