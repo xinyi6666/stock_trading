@@ -3,64 +3,113 @@ The stock market is an extremely complex dynamic system. A remarkable number of 
 The purpose of this project is to understand this paper, replicate its method and further explore the stock trading problem beyond the scope of this paper. We will first describe the problem of interest. Then we will discuss the method proposed in this paper and contrast it with existing alternatives. Next, we will describe the data used for training and testing, and explain how such data is processed. We include implementation details, followed by a discussion on model improvement and an alternative method to DDPG, called **Proximal Policy Optimization (PPO)**. We wrap up with experiment results and an evaluation.     
 
 # Overview
-*
+* [Code Explanation](#code-explaination)
 * [Results](#results)
 * [Data Repliation](#data-replication)
 
+# CODE EXPLAINATION
+-------
+In this section, we are going to explain how to implement a cumsom gym enviroment for the stock trading. This basically explains what are included in `stock_trading_env.py` and `stock_trading_testenvs.py`. We have two versions of stock trading environments which are corresponding to the model in the original paper and the refined model, respectively. 
 
-# Problem Description
-In the aforementioned paper, the authors aim to develop a stock trading strategy with high profit. Suppose there is a pool of *D* stocks that we are interested in investing. A trading strategy consists of buying, selling and holding decisions for each of the *D* stocks at every time step, in response to the dynamic of stock market. The authors model the stock trading process using a **Markov Decision Process (MDP)**. We now set forth some notation and describe this model.
+First before talking into details, the environement should contains all necessary functionaility to run an agents and allow it to learn. Each environment must implement in the following form:
+```
+import gym
+from gym import spaces
 
-## Stock trading process as an MDP
-TODO: insert diagram
+class CustomEnv(gym.Env):
+  """Custom Environment that follows gym interface"""
+  metadata = {'render.modes': ['human']}
 
-**Agent**: investors
+  def __init__(self, arg1, arg2, ...):
+    super(CustomEnv, self).__init__()
+    # Define action and observation space
+    # They must be gym.spaces objects
+    # Example when using discrete actions:
+    self.action_space = spaces.Discrete(N_DISCRETE_ACTIONS)
+    # Example for using image as input:
+    self.observation_space = spaces.Box(low=0, high=255, shape=
+                    (HEIGHT, WIDTH, N_CHANNELS), dtype=np.uint8)
 
-**Environment**: stock market
-
-**State** (*s*): Each state s contains two vectors p and h, and a constant b. The vector p contains the prices of the D stocks. Vector h keeps track of how many of each stock we are holding. And the real number b is the balance we have available for buying more shares.
-
-**Action** (*a*): Each action a encodes a set of actions on all the stocks. For each of the D stocks, we can sell some number of shares, buy some number of shares, or hold, which means do nothing about this stock.
-
-**Reward** (*r*): is the change in the portfolio value given the last state s and action a, the portfolio value is price of the stocks we have, denoted by p, times the numbers of holding shares h plus the current balance b. 
-
-Now the stock trading problem becomes a maximization problem of the expected total reward, which can be captured by the action-value function.
-
-## Model refinements
-
-
-# Methods
-## Existing methods
-Many other researchers have studied problems along the line of asset allocation. For example, the modern portfolio theory by Markowitz  goes back to the 50s. This is a traditional approach to the portfolio management problem, in which we are given a collection of investment options, like different stocks. We are interested in figuring out a way to assign weights to the available options, such that the expected return is maximized subject to a certain risk level. The optimization model in this approach utilizes the mean and covariance information of the past performance of the stocks. 
-
-This approach has a few disadvantages: An observation is that a large amount of information is needed in this method, including the joint probability distribution among all the stocks, and a massive covariance matrix, things become intractable very quickly when the problem scale increases. Also people observed that it has stability issues. Basically when there’s a small change to the input, the optimal portfolio can change drastically. 
-
-Another approach is to use Markov decision process to model the stock trading process, and then maximize the expected return using dynamic programming. From the solution we can then obtain an optimal policy. For value iteration and policy iteration, etc. the exact structure of the MDP, like the transition probabilities, are needed. This becomes a drawback when we don’t know how to make specifications to the Markov decision process. Also, this requirement restricts the tractable sizes of the state and action spaces, so this approach is not the best for large-scale problems. Sometimes we might not know the rewards either. So we need a better method especially for complex systems like the stock market.
-
-## Method proposed in the paper
-Now we give an overview of the method that the authors came up with for the stock trading problem. In particular, we describe the deep deterministic policy gradient algorithm that this whole study relies on. 
-
-The high-level idea of the method in this paper is  to model the stock trading process with an MDP, which we have described in the first slide, and then to optimize the total expected reward by maximizing an action-value function. This optimization problem is quite challenging because the action value function is unknown to the decision maker. It has to be learned with feedbacks from the environment regarding different actions. This makes deep reinforcement learning a desirable approach. More specifically, this optimization problem is solved by an algorithm called deep deterministic policy gradient algorithm (DDPG).
-
-## Details of DDPG
-Next we focus on this DDPG algorithm. DDPG is modified from the deterministic policy gradient algorithm, and the authors adapted DDPG specifically to the MDP model for stock trading. 
-
-The overall structure of DDPG is consistent with the policy gradient  framework that we’ve seen in the lectures. We also learned from the lectures that the crux of the policy gradient framework is to construct a good estimator for the gradient of the expectation function in the objective, usually denoted by capital J. In the general form of an estimator for its gradient, there is a Q term capturing THE VALUE resulted from some actions given states. And this is followed by  the gradient of log pi, which encodes information about decisions made on the actor’s end. These two portions can be approximated by deep neural networks, which is the actor-critic component in the PG framework. This figure is provided in the paper. This upper left network is the actor network. This mu maps the states to the actions, and it learns about how the agent selects actions. Here theta_mu is the set of network parameters of mu. N is a random process. Noises are sampled from N and added to the output of mu to broaden the scope of explorable actions. The network on the right is the critic network. This Q learns about the policy value of an action under a state, which in some way critiques the current policy that the agent adopts. Theta Q is the set of parameters in the critic network.
-
-Algorithm overview TODO: insert an animation.
-
-## Further exploration: PPO
+  def step(self, action):
+    # Execute one time step within the environment
+    ...
+  def reset(self):
+    # Reset the state of the environment to an initial state
+    ...
+  def render(self, mode='human', close=False):
+    # Render the environment to the screen
+    ...
+```
+For more explanation, please refer to this [blog](https://towardsdatascience.com/creating-a-custom-openai-gym-environment-for-stock-trading-be532be3910e).
 
 
-# Data Acquisition and Processing
-## Data used in the paper
-The authors choose to use the Dow jones 30 stocks as the stocks of consideration. These stocks comprise 30 large companies, which are used to evaluate the Dow Jones Industrial Average. This is a commonly used index that reflects the overall performance of the US stock market. The authors had access to the daily prices of these chosen stocks from January the first in 2009 all the way up to September the 30th in 2018. The daily data from January the first in 2009 to the first day of 2016 is used for training and validation. Data after that up to September the 30th in 2018 was used for testing the trained agent’s performance. Yahoo finance is a wonderful source for alternative datasets. 
+## Model in the paper
+Before making the custom gym environment, we need to define some variables and import data which are going to be used over the stock trading environment
+```
+import numpy as np
+import pandas as pd
+import gym
+from gym.utils import seeding
+from gym import spaces
 
-## Data used in this project
-For this project, we used the provided minute-level volume weighted average prices. TODO:SPECIFY TRAINING AND TESTING SETUP This set of data happens to have many missing entries and NAN entries.  One company is omitted for too many missing dates. For consistency, we omit data during after-hours and stock market holidays. We noticed that some data is still missing, so we filled in with the nearest previous data.
+# Import training data
+path = './'
+training_data = pd.read_csv(path+'/Data/clean_data.csv').to_numpy()
+total_row, total_col = training_data.shape
 
+# This will read the reward log file name using stdin 
+log_file_name = input("Type Reward Log File Name:")
 
-# Implementation Details
+n_company = total_col - 2  # remove first two columns
+initial_asset = 10000
+final_reward = []
+
+```
+
+### Constructor 
+Now we are going to create constructor
+```
+
+class StockTradingEnv(gym.Env):
+    metadata = {'render.modes': ['human']}
+    
+    def __init__(self, trading_interval = 30):
+        self.row = 0
+        
+        # The interval for taking action is according to trading_interval
+        self.trading_interval = trading_interval  
+        
+        # Calculate a fix upper/lower bound according to the stock price at the beginning
+        bound = min(np.mean(initial_asset / training_data[0][2:]), 100)
+        
+        # Set up the action space
+        self.action_space = spaces.Box(low=-bound, high=bound, shape=(n_company,), dtype=np.int)
+
+        # number of holding stock + prices for each companies + portfolio value 
+        self.observation_space = spaces.Box(low=0, high=np.inf, shape=(n_company * 2 + 1,))
+        
+        self.stock_price = training_data[self.row][2:]
+        self.done = False
+        self.beginning_asset = initial_asset
+        self.total_asset = initial_asset
+      
+        
+        # number of holding stock + prices for each companies + portfolio value 
+        self.state = [0 for _ in range(n_company)] + self.stock_price.tolist() + [initial_asset]
+        self.reward = 0
+        self.total_reward_buffer = [0]
+
+        self.reset()
+        self._seed()    
+    
+```
+
+# Stock Trading as an MDP
+-------
+
+# RESULTS
+
+# DATA REPLICATION
 ------
 INSTALL DEPENDENCIES:
 -------
@@ -210,8 +259,6 @@ python -m baselines.run --alg=ppo2 --network=mlp --env=StockTrade-v0 --num_times
 ```
 
 It will prompt lines for entering the names of log files to store the episode rewards and the replay portfolio values for each state.
-
-# Results and Evaluation
 
 # References
 * Xiong, Z., Liu, X. Y., Zhong, S., Yang, H., & Walid, A. (2018). Practical deep reinforcement learning approach for stock trading. *arXiv preprint arXiv:1811.07522*.
