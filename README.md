@@ -9,14 +9,17 @@ The purpose of this project is to understand this paper, replicate its method an
 * [Methods](#methods)
   * [Existing methods](#existing-methods)
   * [Method proposed in the paper](#method-proposed-in-the-paper)
-  * [Deep Deterministic Policy Gradient (DDPG)](#ddpg)
-  * [Proximal Policy Optimization (PPO)](#ppo)
-* [Data Acquisition and Processing](#Data-Acquisition-and-Processing)
+  * [Deep Deterministic Policy Gradient (DDPG)](#deep-deterministic-policy-gradient-ddpg)
+  * [Proximal Policy Optimization (PPO)](#proximal-policy-optimization-ppo)
+* [Data Acquisition and Processing](#data-acquisition-and-processing)
   * [Data used in the paper](#data-used-in-the-paper)
-  * [Data used in this project](#Data-used-in-this-project)
+  * [Data used in this project](#data-used-in-this-project)
 * [Code Explanation](#code-explaination)
-* [Results](#results)
-* [Data Replication](#data-replication)
+  * [Model in the paper](#model-in-the-paper)
+  * [Refined model](#refined-model)
+  * [Test environment](#test-environment)
+* [Results and Evaluation](#results-and-evaluation)
+* [How to Use This Repository](#how-to-use-this-repository)
 
 
 # Problem Description
@@ -340,7 +343,7 @@ Otherwise, we calculate the part of the state by calling `_buy_sell_stock`. Afte
         return [seed]
 ```
 
-## Refined Model
+## Refined model
 
 Similar to the previous section, we need to import data and define variables. Since lots of codes are repeated, we do not repost the them here, and will only note the change in each section. For detailed code (without the changes in this section) for `__init__`, `reset`,`render` and `_seed` methods, please refer to section [Model in the Paper](#model-in-the-paper)
 
@@ -406,7 +409,7 @@ For the step method, we only need to change how we calculate `self.state`. In or
 
 For completing the code, we also need to include `render` and `_seed` described in section [Other methods](#other-methods)
 
-## Test Environment
+## Test environment
 The overall implementation for the test environment is basically the same. Only things we have to change is `start_row`, `end_row` at the variable declaration, and the name for the class to `StockTradingTestEnv`.
 
 
