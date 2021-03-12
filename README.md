@@ -535,7 +535,7 @@ This will rename the original `run.py` to `run.bak` in the baseline folder and c
 
 ## Process data
 
-If you do have the raw minute-level data from 2018/09/05 to 2021/02/17, you can use `src/data_process.py` to generate the data use for training and testing. If you do not have the minute-level data, or only have day-level data, please see section **GENERATING YOUR OWN DATA FROM ANY SOURCES**.
+If you do have the raw minute-level data from 2018/09/05 to 2021/02/17, you can use `src/data_process.py` to generate the data use for training and testing. If you do not have the minute-level data, or only have day-level data, please see section **Generating your own data from any sources**.
 
 1) Locate the folder `historical_price` which contains the historical prices for companies
 ```
@@ -572,7 +572,7 @@ cp clean_data.csv $GYM/envs/stocktrade/Data/
           ...   ...      ...       ...  ...      ...       ...      ...      ...
 ```
 
-2) Modify the `stop_min` in `stock_trading_env.py` and `start_min` in `stock_trading_testenv.py` according to your testing and training period.
+2) Modify the `stop_row` in `stock_trading_env.py` and `start_row` in `stock_trading_testenv.py` according to your testing and training period.
 
 3) Continue to the section [TRAIN AND TEST](#train-and-test)
 
