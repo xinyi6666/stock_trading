@@ -1,1 +1,4 @@
 *.csv
+src/.idea/*
+.DS_Store
+
