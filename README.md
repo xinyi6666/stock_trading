@@ -315,6 +315,9 @@ python -m baselines.run --alg=ppo2 --network=mlp --env=StockTrade-v0 --num_times
 
 It will prompt lines for entering the names of log files to store the episode rewards and the replay portfolio values for each state.
 
+
+# Results and Evaluation
+
 # References
 * Xiong, Z., Liu, X. Y., Zhong, S., Yang, H., & Walid, A. (2018). Practical deep reinforcement learning approach for stock trading. *arXiv preprint arXiv:1811.07522*.
 * Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017). Proximal policy optimization algorithms. *arXiv preprint arXiv:1707.06347*.
