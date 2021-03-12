@@ -100,11 +100,12 @@ We explored another method that works well with continuous action space, called 
 </p>
 We next provide some intuition behind this objective. First of all, this objective contains an advantage term *A*. 
 
-TODO!!!
+**TODO!!!**
 Which is essentially the action value of some action minus the expected reward to go under a given state. This value tells us if the outcome of an action is better or worse than average, so that we can increase or decrease the weight for this action. 
 This PG objective also has a clipping component. 
 The reason for this is that, when we run gradient descent over limited batches of past experiences, the network parameters can go farther and farther away from the desired range and the policy is ruined. This clipping part restricts how far the parameter updates can go to resolve this problem. 
 
+In general, it has two versions, one version has the objective involving a KL penalty term.  In the implementation of baseline, it uses the other version. Here is its objective. First, we have advantage in the objective. This is essentially the action value of some action minus the expected reward to go under a given state.  We want to find the parameter theta which maximize this objective. The basic idea is that we first construct a ratio, denoted r_t, that measures how difference between two policies. Then we clip the estimated advantage according to r_t to avoid the new policy is going far away from the old policy. This is alike trust region but easier to compute. It discourages large policy change if it is outside our desired zone.
 
 # Data Acquisition and Processing
 ## Data used in the paper
@@ -375,18 +376,24 @@ It will prompt lines for entering the names of log files to store the episode re
 
 
 # Results and Evaluation
+Now we are going to present the result using the model mentioned in the paper and the one using the refined model. For the training and testing data, we have selected 30 mins as the trading interval. This means that the agent takes action every 30 minutes. The initial portfolio value is $10000. 
 <p align="center">
   <img width="480" src="/fig/old_vs_new_model.png">
 </p>
+After training, we run them on the testing data and plotted the results to see how they behave. In the graph, the x axis is the trading dates, and the y-axis is the portfolio value in dollars. The blue line indicates the portfolio change for refined model, and the red one shows the change using the model proposed in the paper. We can see that our refined model outperforms the original model.
+
+At the left side, it is the testing result for comparing DDPG and PPO. Similar to previous experiment, we selected 30 mins as trading interval. Here the blue line is the portfolio change using DDPG, and the red one is using PPO. We can see that DDPG and PPO run very similar at early stage, only differ a few hundreds at the end of testing. 
+On the right side, we have compared them with SPY500 index and QQQ whose components are the stocks of nasdaq top 100 companies.  We compared for their return, standard deviation of excess return, and their Sharpe ratios. We can see that both policies trained by RL algorithms in the result out-beat market index by over 10% in returns. Although their stds are larger, their Sharpe ratio are comparable with the market index.
 <p align="center">
   <img width="480" src="/fig/results.png">
 </p>
 <p align="center">
   <img width="300" src="/fig/table.png">
 </p>
+**TODO!!!**
 
 # Conclusion
-
+We successfully replicated the method from *Practical Deep Reinforcement Learning Approach for Stock Trading* by Xiong et al. for the stock trading problem. We further adjusted the MDP model of the stock trading process, which significantly improves the results after optimizing with DDPG. Moreover, we went beyond the paper and experimented with an alternative method called PPO. It is not surprising that DDPG and PPO achieved similar results. However, it is worth noting that PPO trains the agent faster and is less sensitive than DDPG to the choice of learning rate. Other extensions from this paper can be explored, such as trying other alternatives of DDPG (e.g. TRPO), and enriching the model by including additional factors (e.g. volumes, technical indicators). 
 
 # References
 * Xiong, Z., Liu, X. Y., Zhong, S., Yang, H., & Walid, A. (2018). Practical deep reinforcement learning approach for stock trading. *arXiv preprint arXiv:1811.07522*.
