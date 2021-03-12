@@ -68,13 +68,16 @@ The high-level idea of the method in this paper is  to model the stock trading p
 
 ## Deep Deterministic Policy Gradient (DDPG)
 Next we focus on this DDPG algorithm. DDPG is modified from the deterministic policy gradient algorithm, and the authors adapted DDPG specifically to the MDP model for stock trading. 
+<p align="center">
+  <img width="480" src="/fig/actor_critic.png">
+</p>
 
 The overall structure of DDPG is consistent with the policy gradient  framework that we’ve seen in the lectures. We also learned from the lectures that the crux of the policy gradient framework is to construct a good estimator for the gradient of the expectation function in the objective, usually denoted by capital J. In the general form of an estimator for its gradient, there is a Q term capturing THE VALUE resulted from some actions given states. And this is followed by  the gradient of log pi, which encodes information about decisions made on the actor’s end. These two portions can be approximated by deep neural networks, which is the actor-critic component in the PG framework. This figure is provided in the paper. This upper left network is the actor network. This mu maps the states to the actions, and it learns about how the agent selects actions. Here theta_mu is the set of network parameters of mu. N is a random process. Noises are sampled from N and added to the output of mu to broaden the scope of explorable actions. The network on the right is the critic network. This Q learns about the policy value of an action under a state, which in some way critiques the current policy that the agent adopts. Theta Q is the set of parameters in the critic network.
 
 
 
 <p align="center">
-  <img width="480" src="/fig/DDPG_overview.gif">
+  <img width="640" src="/fig/DDPG_overview.gif">
 </p>
 
 
@@ -351,6 +354,15 @@ It will prompt lines for entering the names of log files to store the episode re
 
 
 # Results and Evaluation
+<p align="center">
+  <img width="480" src="/fig/old_vs_new_model.png">
+</p>
+<p align="center">
+  <img width="480" src="/fig/results.png">
+</p>
+<p align="center">
+  <img width="300" src="/fig/table.png">
+</p>
 
 # References
 * Xiong, Z., Liu, X. Y., Zhong, S., Yang, H., & Walid, A. (2018). Practical deep reinforcement learning approach for stock trading. *arXiv preprint arXiv:1811.07522*.
