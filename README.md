@@ -459,7 +459,7 @@ Both policies attain similar portfolio values after training for over 15 minutes
   <img width="420" src="/fig/new_table.jpeg">
 </p>
 
-Lastly, we compare the DDPG and PPO results with SPY500 index and QQQ, whose components are the stocks of Nasdaq top 100 companies. More specifically, we evaluate these methods in terms of the return, the standard deviation of excess return, and Sharpe ratios. From the table above, we observe that both policies trained for 30 minutes by the deep reinforcement learning algorithms beat the market index by over 10% in returns. Although their standard deviations are larger, their Sharpe ratios are comparable with the market index. Such results suggest that deep reinforcement learning approaches have great potentials in tackling the stock trading problem. 
+Lastly, we compare the DDPG and PPO results with SPY and QQQ ETFs, whose components are the stocks in S&P 500 index and Nasdaq top 100, respectively. More specifically, we evaluate these methods in terms of the return, the standard deviation of excess return, and Sharpe ratios. From the table above, we observe that both policies trained for 30 minutes by the deep reinforcement learning algorithms beat the market index by over 10% in returns. Although their standard deviations are larger, their Sharpe ratios are comparable with the market index (the risk free rate slelected is 1-yr treausry interest rate during the 1-yr test period). Such results suggest that deep reinforcement learning approaches have great potentials in tackling the stock trading problem. 
 
 # How to Use This Repository
 ## Install dependencies
